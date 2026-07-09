@@ -1,0 +1,77 @@
+package com.github.vitordalvi.ucloan.entities;
+
+import com.github.vitordalvi.ucloan.entities.enums.LoanStatus;
+import com.github.vitordalvi.ucloan.entities.enums.PhysicalStatus;
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "tb_equipment")
+public class Equipment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 80)
+    private String name;
+
+    @Column(nullable = true)
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "equipment_model_id", nullable = false)
+    private EquipmentModel equipmentModel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "loan_status", nullable = false, length = 30)
+    private LoanStatus loanStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "physicaL_status", nullable = false, length = 30)
+    private PhysicalStatus physicalStatus;
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public EquipmentModel getEquipmentModel() {
+        return equipmentModel;
+    }
+
+    public void setEquipmentModel(EquipmentModel equipmentModel) {
+        this.equipmentModel = equipmentModel;
+    }
+
+    public LoanStatus getLoanStatus() {
+        return loanStatus;
+    }
+
+    public void setLoanStatus(LoanStatus loanStatus) {
+        this.loanStatus = loanStatus;
+    }
+
+    public PhysicalStatus getPhysicalStatus() {
+        return physicalStatus;
+    }
+
+    public void setPhysicalStatus(PhysicalStatus physicalStatus) {
+        this.physicalStatus = physicalStatus;
+    }
+    
+}
