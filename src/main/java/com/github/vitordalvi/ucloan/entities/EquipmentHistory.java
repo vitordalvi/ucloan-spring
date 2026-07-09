@@ -33,7 +33,16 @@ public class EquipmentHistory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "changed_by_id", nullable = false)
-    private User changedBy;
+    private ApplicationUser changedBy;
+
+    public EquipmentHistory(Equipment equipment, ApplicationUser changedBy, String notes) {
+        this.equipment = equipment;
+        this.physicalStatus = equipment.getPhysicalStatus();
+        this.loanStatus = equipment.getLoanStatus();
+        this.changedBy = changedBy;
+        this.changedAt = LocalDateTime.now();
+        this.notes = notes;
+    }
 
     public Long getId() {
         return id;
@@ -79,11 +88,11 @@ public class EquipmentHistory {
         this.changedAt = changedAt;
     }
 
-    public User getChangedBy() {
+    public ApplicationUser getChangedBy() {
         return changedBy;
     }
 
-    public void setChangedBy(User changedBy) {
+    public void setChangedBy(ApplicationUser changedBy) {
         this.changedBy = changedBy;
     }
 }
