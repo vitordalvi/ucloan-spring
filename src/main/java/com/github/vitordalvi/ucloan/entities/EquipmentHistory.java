@@ -29,7 +29,7 @@ public class EquipmentHistory {
     private String notes;
 
     @Column(nullable = false)
-    private LocalDateTime changedDate;
+    private LocalDateTime changedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "changed_by_id", nullable = false)
@@ -71,12 +71,12 @@ public class EquipmentHistory {
         this.notes = notes;
     }
 
-    public LocalDateTime getChangedDate() {
-        return changedDate;
+    public LocalDateTime getChangedAt() {
+        return changedAt;
     }
 
-    public void setChangedDate(LocalDateTime changedDate) {
-        this.changedDate = changedDate;
+    public void setChangedAt(LocalDateTime changedAt) {
+        this.changedAt = changedAt;
     }
 
     public User getChangedBy() {
