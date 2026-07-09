@@ -12,9 +12,6 @@ public class Equipment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 80)
-    private String name;
-
     @Column(nullable = true)
     private String description;
 
@@ -32,14 +29,6 @@ public class Equipment {
 
     public Long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getDescription() {
@@ -73,5 +62,5 @@ public class Equipment {
     public void setPhysicalStatus(PhysicalStatus physicalStatus) {
         this.physicalStatus = physicalStatus;
     }
-    
+
 }
