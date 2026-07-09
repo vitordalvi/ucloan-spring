@@ -1,0 +1,90 @@
+package com.github.vitordalvi.ucloan.entities;
+
+import com.github.vitordalvi.ucloan.entities.enums.LoanStatus;
+import com.github.vitordalvi.ucloan.entities.enums.PhysicalStatus;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "tb_equipment_history")
+public class EquipmentHistory {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipment_id", nullable = false)
+    private Equipment equipment;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PhysicalStatus physicalStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LoanStatus loanStatus;
+
+    private String notes;
+
+    @Column(nullable = false)
+    private LocalDateTime changedDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "changed_by_id", nullable = false)
+    private User changedBy;
+
+    public Long getId() {
+        return id;
+    }
+
+    public Equipment getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(Equipment equipment) {
+        this.equipment = equipment;
+    }
+
+    public PhysicalStatus getPhysicalStatus() {
+        return physicalStatus;
+    }
+
+    public void setPhysicalStatus(PhysicalStatus physicalStatus) {
+        this.physicalStatus = physicalStatus;
+    }
+
+    public LoanStatus getLoanStatus() {
+        return loanStatus;
+    }
+
+    public void setLoanStatus(LoanStatus loanStatus) {
+        this.loanStatus = loanStatus;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public LocalDateTime getChangedDate() {
+        return changedDate;
+    }
+
+    public void setChangedDate(LocalDateTime changedDate) {
+        this.changedDate = changedDate;
+    }
+
+    public User getChangedBy() {
+        return changedBy;
+    }
+
+    public void setChangedBy(User changedBy) {
+        this.changedBy = changedBy;
+    }
+}
+
