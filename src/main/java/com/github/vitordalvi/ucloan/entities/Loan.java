@@ -26,7 +26,7 @@ public class Loan {
     private Equipment equipment;
 
     @Column(nullable = false)
-    private LocalDateTime startDate;
+    private LocalDateTime startDate = LocalDateTime.now();
 
     private LocalDateTime endDate;
 
