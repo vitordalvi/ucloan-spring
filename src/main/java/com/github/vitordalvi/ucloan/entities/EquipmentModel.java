@@ -10,10 +10,7 @@ public class EquipmentModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 90)
     private String name;
-
-    @Column(nullable = false, length = 90)
     private String manufacturer;
 
     public Long getId() {

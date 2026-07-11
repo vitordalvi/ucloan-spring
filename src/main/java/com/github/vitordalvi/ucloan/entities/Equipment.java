@@ -12,7 +12,6 @@ public class Equipment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = true)
     private String description;
 
     @ManyToOne
@@ -20,11 +19,11 @@ public class Equipment {
     private EquipmentModel equipmentModel;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "loan_status", nullable = false, length = 30)
+    @Column(name = "loan_status")
     private LoanStatus loanStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "physicaL_status", nullable = false, length = 30)
+    @Column(name = "physical_status")
     private PhysicalStatus physicalStatus;
 
     public Long getId() {

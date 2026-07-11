@@ -18,8 +18,10 @@ public class LoanHistory {
     private Loan loan;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "loan_status")
     private LoanStatus loanStatus;
 
+    @Column(name = "changed_at")
     private LocalDateTime changedAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,6 +29,15 @@ public class LoanHistory {
     private ApplicationUser changedBy;
 
     private String notes;
+
+    protected LoanHistory() {}
+
+    public LoanHistory(Loan loan, ApplicationUser changedBy, String notes) {
+        this.loan = loan;
+        this.loanStatus = loan.getLoanStatus();
+        this.changedBy = changedBy;
+        this.notes = notes;
+    }
 
     public Long getId() {
         return id;
