@@ -15,25 +15,27 @@ public class EquipmentHistory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "equipment_id", nullable = false)
+    @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "physical_status")
     private PhysicalStatus physicalStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "loan_status")
     private LoanStatus loanStatus;
 
     private String notes;
 
-    @Column(nullable = false)
+    @Column(name = "changed_at")
     private LocalDateTime changedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "changed_by_id", nullable = false)
+    @JoinColumn(name = "changed_by_id")
     private ApplicationUser changedBy;
+
+    protected EquipmentHistory() {}
 
     public EquipmentHistory(Equipment equipment, ApplicationUser changedBy, String notes) {
         this.equipment = equipment;

@@ -18,19 +18,19 @@ public class Loan {
     private ApplicationUser borrower;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "loan_status")
     private LoanStatus loanStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
 
-    @Column(nullable = false)
+    @Column(name = "start_date")
     private LocalDateTime startDate = LocalDateTime.now();
 
+    @Column(name = "end_date")
     private LocalDateTime endDate;
 
-    @Column(length = 100)
     private String description;
 
     public Long getId() {

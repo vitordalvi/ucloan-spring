@@ -10,10 +10,7 @@ public class ApplicationUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 120)
     private String name;
-
-    @Column(unique = true, nullable = false)
     private String email;
 
     /* Depois quando implementar o Spring Security, vou
