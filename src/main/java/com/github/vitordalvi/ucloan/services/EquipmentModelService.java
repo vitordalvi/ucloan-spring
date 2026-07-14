@@ -1,12 +1,15 @@
 package com.github.vitordalvi.ucloan.services;
 
 import com.github.vitordalvi.ucloan.dto.request.CreateEquipmentModelRequestDto;
+import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentModelResponseDto;
 import com.github.vitordalvi.ucloan.entities.EquipmentModel;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.EquipmentMapper;
 import com.github.vitordalvi.ucloan.mapper.EquipmentModelMapper;
 import com.github.vitordalvi.ucloan.repository.EquipmentModelRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,10 +55,26 @@ public class EquipmentModelService {
         return equipmentModelMapper.toDto(equipmentModel);
     }
 
+    public EquipmentModelResponseDto patch(Long id, PatchEquipmentModelRequestDto dto) {
+        EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
+
+        equipmentModelMapper.patchEntityFromDto(dto, equipmentModel);
+        equipmentModelRepository.save(equipmentModel);
+
+        return equipmentModelMapper.toDto(equipmentModel);
+    }
+
     public void delete(Long id) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
         equipmentModelRepository.delete(equipmentModel);
+    }
+
+    public Page<EquipmentModelResponseDto> findAll(Pageable pageable) {
+        Page<EquipmentModel> equipmentModels = equipmentModelRepository.findAll(pageable);
+
+        return equipmentModels.map(equipmentModelMapper::toDto);
     }
 }
