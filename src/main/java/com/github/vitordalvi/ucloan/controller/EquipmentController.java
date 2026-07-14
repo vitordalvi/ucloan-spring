@@ -25,13 +25,14 @@ public class EquipmentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EquipmentResponseDto> getEquipmentById(@PathVariable("id") Long id) {
+    public ResponseEntity<EquipmentResponseDto> getEquipmentById(@PathVariable Long id) {
         return ResponseEntity.ok(equipmentService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<EquipmentResponseDto> create(@Valid @RequestBody CreateEquipmentRequestDto dto,
-                                                       UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<EquipmentResponseDto> create(
+            @Valid @RequestBody CreateEquipmentRequestDto dto,
+            UriComponentsBuilder uriBuilder) {
 
         EquipmentResponseDto response = equipmentService.create(dto);
         URI location = uriBuilder.path("/api/v1/equipments/{id}")
@@ -42,8 +43,9 @@ public class EquipmentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EquipmentResponseDto> update(@PathVariable Long id,
-                                                       @Valid @RequestBody CreateEquipmentRequestDto dto) {
+    public ResponseEntity<EquipmentResponseDto> update(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateEquipmentRequestDto dto) {
 
         EquipmentResponseDto response = equipmentService.update(id, dto);
 
@@ -51,8 +53,9 @@ public class EquipmentController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<EquipmentResponseDto> patch(@PathVariable Long id,
-                                                      @Valid @RequestBody PatchEquipmentRequestDto dto) {
+    public ResponseEntity<EquipmentResponseDto> patch(
+            @PathVariable Long id,
+            @Valid @RequestBody PatchEquipmentRequestDto dto) {
 
         EquipmentResponseDto response = equipmentService.patch(id, dto);
 
