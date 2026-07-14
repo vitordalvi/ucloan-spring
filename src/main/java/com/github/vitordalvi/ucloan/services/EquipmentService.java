@@ -29,6 +29,7 @@ public class EquipmentService {
         this.equipmentModelRepository = equipmentModelRepository;
     }
 
+    // retorna o equipamento
     public EquipmentResponseDto findById(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -44,13 +45,16 @@ public class EquipmentService {
     }
     */
 
+    // Retorno dos equipamentos em paginas para melhor performance
     public Page<EquipmentResponseDto> findAll(Pageable pageable) {
         Page<Equipment> equipments = equipmentRepository.findAll(pageable);
 
         return equipments.map(equipmentMapper::toDto);
     }
 
+    // Criar equipamento com base no Dto, assim faz a criação do Id automaticamente
     public EquipmentResponseDto create(CreateEquipmentRequestDto dto) {
+        // Validação de se o equipmentModelId que foi passado realmente existe no banco
         EquipmentModel equipmentModel = equipmentModelRepository.findById(dto.equipmentModelId())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
@@ -62,6 +66,7 @@ public class EquipmentService {
         return equipmentMapper.toDto(entity);
     }
 
+    // update (PUT), vai ser removido em breve
     public EquipmentResponseDto update(Long id, CreateEquipmentRequestDto dto) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(dto.equipmentModelId())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -76,6 +81,7 @@ public class EquipmentService {
         return equipmentMapper.toDto(equipment);
     }
 
+    // metodo para atualizar o equipamento parcialmente, de acordo com os campos
     public EquipmentResponseDto patch(Long id, PatchEquipmentRequestDto dto) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -93,6 +99,9 @@ public class EquipmentService {
         return equipmentMapper.toDto(equipment);
     }
 
+    // metodo para deletar um equipamento da base de dados
+    // quando eu fizer as alterações nas classes (por exemplo, "proibir" o delete) completo
+    // da entidade no banco, apenas desabilitar, por segurança.. esse metodo sera alterado
     public void delete(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
