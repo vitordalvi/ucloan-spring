@@ -5,6 +5,7 @@ import com.github.vitordalvi.ucloan.dto.response.EquipmentResponseDto;
 import com.github.vitordalvi.ucloan.entities.Equipment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
@@ -17,5 +18,5 @@ public interface EquipmentMapper {
 
     List<EquipmentResponseDto> toDtoList(List<Equipment> equipments);
 
-    void updateEntityFromDto(CreateEquipmentRequestDto dto, Equipment equipment);
+    void updateEntityFromDto(CreateEquipmentRequestDto dto, @MappingTarget Equipment equipment);
 }
