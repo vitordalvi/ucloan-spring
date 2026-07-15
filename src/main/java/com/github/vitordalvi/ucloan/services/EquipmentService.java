@@ -7,6 +7,7 @@ import com.github.vitordalvi.ucloan.entities.Equipment;
 import com.github.vitordalvi.ucloan.entities.EquipmentModel;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.EquipmentMapper;
+import com.github.vitordalvi.ucloan.repository.EquipmentHistoryRepository;
 import com.github.vitordalvi.ucloan.repository.EquipmentModelRepository;
 import com.github.vitordalvi.ucloan.repository.EquipmentRepository;
 import org.springframework.data.domain.Page;
@@ -21,12 +22,15 @@ public class EquipmentService {
     private final EquipmentRepository equipmentRepository;
     private final EquipmentMapper equipmentMapper;
     private final EquipmentModelRepository equipmentModelRepository;
+    private final EquipmentHistoryRepository equipmentHistoryRepository;
 
     public EquipmentService(EquipmentRepository equipmentRepository, EquipmentMapper equipmentMapper,
-                            EquipmentModelRepository equipmentModelRepository) {
+                            EquipmentModelRepository equipmentModelRepository,
+                            EquipmentHistoryRepository equipmentHistoryRepository) {
         this.equipmentRepository = equipmentRepository;
         this.equipmentMapper = equipmentMapper;
         this.equipmentModelRepository = equipmentModelRepository;
+        this.equipmentHistoryRepository = equipmentHistoryRepository;
     }
 
     // retorna o equipamento
