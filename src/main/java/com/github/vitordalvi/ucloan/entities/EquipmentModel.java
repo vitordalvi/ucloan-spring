@@ -1,21 +1,14 @@
 package com.github.vitordalvi.ucloan.entities;
 
+import com.github.vitordalvi.ucloan.entities.base.AuditableBaseEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "tb_equipment_model")
-public class EquipmentModel {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class EquipmentModel extends AuditableBaseEntity {
 
     private String name;
     private String manufacturer;
-
-    public Long getId() {
-        return id;
-    }
 
     public String getName() {
         return name;

@@ -1,5 +1,6 @@
 package com.github.vitordalvi.ucloan.entities;
 
+import com.github.vitordalvi.ucloan.entities.base.AuditableBaseEntity;
 import com.github.vitordalvi.ucloan.entities.enums.LoanStatus;
 import jakarta.persistence.*;
 
@@ -7,11 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tb_loan")
-public class Loan {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Loan extends AuditableBaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "borrower_id", nullable = false)
@@ -32,10 +29,6 @@ public class Loan {
     private LocalDateTime endDate;
 
     private String description;
-
-    public Long getId() {
-        return id;
-    }
 
     public ApplicationUser getBorrower() {
         return borrower;

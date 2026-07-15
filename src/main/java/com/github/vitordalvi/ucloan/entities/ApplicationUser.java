@@ -1,14 +1,11 @@
 package com.github.vitordalvi.ucloan.entities;
 
+import com.github.vitordalvi.ucloan.entities.base.AuditableBaseEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "tb_user")
-public class ApplicationUser {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ApplicationUser extends AuditableBaseEntity {
 
     private String name;
     private String email;
@@ -17,10 +14,6 @@ public class ApplicationUser {
         adicionar função de autenticação (senha), autoridade
         (roles e permissions)e  JWT
     */
-
-    public Long getId() {
-        return id;
-    }
 
     public String getName() {
         return name;
