@@ -1,0 +1,23 @@
+ALTER TABLE tb_equipment
+    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT now(),
+    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT now();
+
+ALTER TABLE tb_equipment_model
+    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT now(),
+    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT now();
+
+ALTER TABLE tb_equipment_history
+    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT now(),
+    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT now();
+
+ALTER TABLE tb_user
+    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT now(),
+    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT now();
+
+ALTER TABLE tb_loan
+    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT now(),
+    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT now();
+
+ALTER TABLE tb_loan_history
+    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT now(),
+    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT now();
