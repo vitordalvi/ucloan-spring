@@ -1,0 +1,1 @@
+ALTER TABLE tb_equipment DROP COLUMN loan_status;
