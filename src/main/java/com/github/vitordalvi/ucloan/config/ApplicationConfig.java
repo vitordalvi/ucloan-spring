@@ -1,6 +1,8 @@
 package com.github.vitordalvi.ucloan.config;
 
+import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.github.vitordalvi.ucloan.entities.enums.Role;
+
 
 @Configuration
 public class ApplicationConfig {
@@ -42,5 +47,20 @@ public class ApplicationConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public CommandLineRunner seedAdmin(ApplicationUserRepository repo, PasswordEncoder encoder) {
+        return args -> {
+            if (repo.findByEmail("admin@ucloan.com").isEmpty()) {
+                ApplicationUser admin = new ApplicationUser();
+                admin.setFirstName("System");
+                admin.setLastName("Admin");
+                admin.setEmail("admin@ucloan.com");
+                admin.setPassword(encoder.encode("123456"));
+                admin.setRole(Role.ADMIN);
+                repo.save(admin);
+            }
+        };
     }
 }
