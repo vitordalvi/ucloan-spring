@@ -1,0 +1,2 @@
+ALTER TABLE tb_user
+    ALTER COLUMN last_name DROP NOT NULL;
