@@ -9,6 +9,8 @@ import com.github.vitordalvi.ucloan.entities.Token;
 import com.github.vitordalvi.ucloan.entities.enums.Role;
 import com.github.vitordalvi.ucloan.entities.enums.TokenType;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
+import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
+import com.github.vitordalvi.ucloan.mapper.TokenMapper;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
 import com.github.vitordalvi.ucloan.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
@@ -30,32 +32,35 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final ApplicationUserMapper userMapper;
+    private final TokenMapper tokenMapper;
 
     public AuthService(ApplicationUserRepository applicationUserRepository,
                        TokenRepository tokenRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager,
+                       ApplicationUserMapper userMapper,
+                       TokenMapper tokenMapper) {
 
         this.applicationUserRepository = applicationUserRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.userMapper = userMapper;
+        this.tokenMapper = tokenMapper;
     }
 
     public AuthenticationResponseDto register(UserRegisterRequestDto request) {
-        var user = ApplicationUser.builder()
-                .firstName(request.firstName())
-                .lastName(request.lastName())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .role(Role.USER)
-                .build();
+        var user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(Role.USER);
 
         var savedUser = applicationUserRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        var jwtToken = jwtService.generateToken(savedUser);
+        var refreshToken = jwtService.generateRefreshToken(savedUser);
+
         saveUserToken(savedUser, jwtToken);
 
         return new AuthenticationResponseDto(jwtToken, refreshToken);
@@ -81,13 +86,7 @@ public class AuthService {
     }
 
     private void saveUserToken(ApplicationUser user, String jwtToken) {
-        var token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .expired(false)
-                .revoked(false)
-                .build();
+        var token = tokenMapper.toEntity(user, jwtToken);
 
         tokenRepository.save(token);
     }
@@ -107,34 +106,30 @@ public class AuthService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-
+    public AuthenticationResponseDto refreshToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
+            throw new IllegalArgumentException("Header inválido");
         }
 
-        refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(refreshToken);
+        String refreshToken = authHeader.substring(7);
+        String userEmail = jwtService.extractUsername(refreshToken);
 
-        if (userEmail != null) {
-            var user = applicationUserRepository.findByEmail(userEmail)
-                    .orElseThrow(() -> new ResourceNotFoundException("Any records found for this email!"));
-
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var acessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
-                saveUserToken(user, acessToken);
-
-                var authResponse = new AuthenticationResponseDto(acessToken, refreshToken);
-
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-            }
+        if (userEmail == null) {
+            throw new ResourceNotFoundException("Token de atualização inválido");
         }
+
+        var user = applicationUserRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Nenhum usuário encontrado"));
+
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new IllegalArgumentException("Refresh token expirado ou inválido");
+        }
+
+        var accessToken = jwtService.generateToken(user);
+
+        revokeAllUserTokens(user);
+        saveUserToken(user, accessToken);
+
+        return new AuthenticationResponseDto(accessToken, refreshToken);
     }
 }
