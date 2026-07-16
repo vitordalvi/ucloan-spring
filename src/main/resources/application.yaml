@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: ucloan
+
+  # import da .env
+  config:
+    import: "optional:file:./.env[.properties]"
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    baseline-version: 1
+    baseline-on-migrate: true
+
+  # jpa/hibernate configs
+  jpa:
+    hibernate:
+      ddl-auto: validate # hibernate só confere, quem vai criar a db vai ser o flyway
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000
+
+logging:
+  level:
+    org.flywaydb: DEBUG
