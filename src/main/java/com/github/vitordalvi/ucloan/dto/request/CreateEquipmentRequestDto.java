@@ -8,5 +8,4 @@ import jakarta.validation.constraints.Size;
 public record CreateEquipmentRequestDto(
         @Size(max = 500) String description,
         @NotNull Long equipmentModelId,
-        @NotNull LoanStatus loanStatus,
         @NotNull PhysicalStatus physicalStatus) {}
