@@ -87,6 +87,7 @@ public class EquipmentService {
     }
 
     // metodo para atualizar o equipamento parcialmente, de acordo com os campos
+    // possivelmente devo adicionar para caso o modelo seja alterado, isso também vá para o histórico
     public EquipmentResponseDto patch(Long id, PatchEquipmentRequestDto dto) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
