@@ -4,6 +4,7 @@ import com.github.vitordalvi.ucloan.dto.request.CreateEquipmentRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentResponseDto;
 import com.github.vitordalvi.ucloan.entities.Equipment;
+import com.github.vitordalvi.ucloan.entities.EquipmentHistory;
 import com.github.vitordalvi.ucloan.entities.EquipmentModel;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.EquipmentMapper;
@@ -95,6 +96,11 @@ public class EquipmentService {
                     .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
             equipment.setEquipmentModel(equipmentModel);
+        }
+
+        if (dto.physicalStatus() != null && dto.physicalStatus() != equipment.getPhysicalStatus()) {
+            EquipmentHistory history = new EquipmentHistory(equipment, dto.physicalStatus(), "Status updated");
+            equipmentHistoryRepository.save(history);
         }
 
         equipmentMapper.patchEntityFromDto(dto, equipment);
