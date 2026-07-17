@@ -1,17 +1,28 @@
 package com.github.vitordalvi.ucloan.services;
 
+import com.github.vitordalvi.ucloan.dto.response.EquipmentHistoryResponseDto;
 import com.github.vitordalvi.ucloan.entities.EquipmentHistory;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
+import com.github.vitordalvi.ucloan.mapper.EquipmentHistoryMapper;
 import com.github.vitordalvi.ucloan.repository.EquipmentHistoryRepository;
+import com.github.vitordalvi.ucloan.repository.EquipmentRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class EquipmentHistoryService {
 
     private final EquipmentHistoryRepository equipmentHistoryRepository;
+    private final EquipmentHistoryMapper mapper;
+    private final EquipmentRepository equipmentRepository;
 
-    public EquipmentHistoryService(EquipmentHistoryRepository equipmentHistoryRepository) {
+    public EquipmentHistoryService(EquipmentHistoryRepository equipmentHistoryRepository,
+                                   EquipmentHistoryMapper mapper,
+                                   EquipmentRepository equipmentRepository) {
         this.equipmentHistoryRepository = equipmentHistoryRepository;
+        this.mapper = mapper;
+        this.equipmentRepository = equipmentRepository;
     }
 
     public EquipmentHistory findById(Long id) {
@@ -19,8 +30,7 @@ public class EquipmentHistoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
     }
 
-    // Para implementação desse create (EquipmentHistory)
-    // vou precisar primeiro implementar o Spring Security, para conseguirmos
-    // descobrir o id do autor da ação
-    //public EquipmentHistory create()
+    public List<EquipmentHistoryResponseDto> findAllByEquipmentId(Long id) {
+        return mapper.toDtoList(equipmentHistoryRepository.findAllByEquipmentId(id));
+    }
 }
