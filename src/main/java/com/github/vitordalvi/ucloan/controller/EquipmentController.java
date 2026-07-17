@@ -83,6 +83,7 @@ public class EquipmentController {
         return ResponseEntity.ok(response);
     }
 
+    // transformar isso em Page
     @GetMapping("/{id}/history")
     public ResponseEntity<List<EquipmentHistoryResponseDto>> getHistory(@PathVariable Long id) {
         List<EquipmentHistoryResponseDto> history = equipmentHistoryService.findAllByEquipmentId(id);
