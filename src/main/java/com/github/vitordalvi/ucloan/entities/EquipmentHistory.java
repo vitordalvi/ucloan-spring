@@ -1,7 +1,6 @@
 package com.github.vitordalvi.ucloan.entities;
 
 import com.github.vitordalvi.ucloan.entities.base.AuditableBaseEntity;
-import com.github.vitordalvi.ucloan.entities.enums.LoanStatus;
 import com.github.vitordalvi.ucloan.entities.enums.PhysicalStatus;
 import jakarta.persistence.*;
 
@@ -21,20 +20,11 @@ public class EquipmentHistory extends AuditableBaseEntity {
 
     private String notes;
 
-    @Column(name = "changed_at")
-    private LocalDateTime changedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "changed_by_id")
-    private ApplicationUser changedBy;
-
     protected EquipmentHistory() {}
 
-    public EquipmentHistory(Equipment equipment, ApplicationUser changedBy, String notes) {
+    public EquipmentHistory(Equipment equipment, PhysicalStatus physicalStatus, String notes) {
         this.equipment = equipment;
-        this.physicalStatus = equipment.getPhysicalStatus();
-        this.changedBy = changedBy;
-        this.changedAt = LocalDateTime.now();
+        this.physicalStatus = physicalStatus;
         this.notes = notes;
     }
 
@@ -62,20 +52,5 @@ public class EquipmentHistory extends AuditableBaseEntity {
         this.notes = notes;
     }
 
-    public LocalDateTime getChangedAt() {
-        return changedAt;
-    }
-
-    public void setChangedAt(LocalDateTime changedAt) {
-        this.changedAt = changedAt;
-    }
-
-    public ApplicationUser getChangedBy() {
-        return changedBy;
-    }
-
-    public void setChangedBy(ApplicationUser changedBy) {
-        this.changedBy = changedBy;
-    }
 }
 
