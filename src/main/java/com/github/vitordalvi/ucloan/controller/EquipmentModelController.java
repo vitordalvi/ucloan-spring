@@ -62,6 +62,7 @@ public class EquipmentModelController {
         return ResponseEntity.ok(response);
     }
 
+    // refazer (aplicar a logica de um "soft delete")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         equipmentModelService.delete(id);
