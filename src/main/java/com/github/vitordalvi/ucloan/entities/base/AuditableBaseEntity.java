@@ -29,4 +29,20 @@ public abstract class AuditableBaseEntity extends BaseEntity {
     @LastModifiedBy
     @ManyToOne
     private ApplicationUser updatedBy;
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public ApplicationUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public ApplicationUser getUpdatedBy() {
+        return updatedBy;
+    }
 }
