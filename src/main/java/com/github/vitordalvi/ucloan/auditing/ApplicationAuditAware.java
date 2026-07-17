@@ -11,12 +11,15 @@ import java.util.Optional;
 
 @Component
 public class ApplicationAuditAware implements AuditorAware<ApplicationUser> {
+
+    // Responsável pela atualização dos campos auditáveis da AuditableBaseEntity
     @Override
     public Optional<ApplicationUser> getCurrentAuditor() {
+        // Salva a autenticação que foi feita
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
-
+        // Se a autenticação não existir, ou se for uma autenticação anônima, retorna nulo
         if (authentication == null ||
         !authentication.isAuthenticated() ||
         authentication instanceof AnonymousAuthenticationToken
@@ -24,6 +27,7 @@ public class ApplicationAuditAware implements AuditorAware<ApplicationUser> {
             return Optional.empty();
         }
 
+        // Retorna o objeto do usuário que foi pego autenticação
         ApplicationUser userPrincipal = (ApplicationUser) authentication.getPrincipal();
         return Optional.ofNullable(userPrincipal);
     }
