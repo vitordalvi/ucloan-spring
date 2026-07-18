@@ -24,16 +24,19 @@ public class EquipmentModelController {
         this.equipmentModelService = equipmentModelService;
     }
 
+    // Endpoint para retornar as informações de um modelo de equipamento específico
     @GetMapping("/{id}")
     public ResponseEntity<EquipmentModelResponseDto> getEquipmentModelById(@PathVariable Long id) {
         return ResponseEntity.ok(equipmentModelService.findById(id));
     }
 
+    // Endpoint para criação de um modelo de equipamento
     @PostMapping
     public ResponseEntity<EquipmentModelResponseDto> create(
             @Valid @RequestBody CreateEquipmentModelRequestDto dto,
             UriComponentsBuilder uriBuilder) {
 
+        // Retornar a url do modelo de equipamento criado no body da resposta
         EquipmentModelResponseDto response = equipmentModelService.create(dto);
         URI location = uriBuilder.path("api/v1/equipment-models/{id}")
                 .buildAndExpand(response.id())
@@ -42,6 +45,7 @@ public class EquipmentModelController {
         return ResponseEntity.created(location).body(response);
     }
 
+    // Endpoint para atualizar todos os campos do modelo de equipamento específico
     @PutMapping("/{id}")
     public ResponseEntity<EquipmentModelResponseDto> update(
             @PathVariable Long id,
@@ -52,6 +56,7 @@ public class EquipmentModelController {
         return ResponseEntity.ok(response);
     }
 
+    // Endpoint para atualizar campos específicos do modelo de equipamento específico
     @PatchMapping("/{id}")
     public ResponseEntity<EquipmentModelResponseDto> patch(
             @PathVariable Long id,
@@ -62,6 +67,7 @@ public class EquipmentModelController {
         return ResponseEntity.ok(response);
     }
 
+    // Endpoint para deletar um modelo de equipamento do banco
     // refazer (aplicar a logica de um "soft delete")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
