@@ -25,6 +25,7 @@ public class EquipmentModelService {
         this.equipmentModelMapper = equipmentModelMapper;
     }
 
+    // Retorna um modelo de equipamento pelo seu id
     public EquipmentModelResponseDto findById(Long id) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -32,19 +33,22 @@ public class EquipmentModelService {
         return equipmentModelMapper.toDto(equipmentModel);
     }
 
+    // Retorna a lista com todos os modelos de equipamentos em lista
     public List<EquipmentModelResponseDto> findAll() {
         List<EquipmentModel> equipmentModels = equipmentModelRepository.findAll();
 
         return equipmentModelMapper.toDtoList(equipmentModels);
     }
 
+    // Cria um modelo de equipamento
     public EquipmentModelResponseDto create(CreateEquipmentModelRequestDto dto) {
-        EquipmentModel equipmentModel = equipmentModelMapper.toEntity(dto);
-        EquipmentModel entity = equipmentModelRepository.save(equipmentModel);
+        EquipmentModel equipmentModel = equipmentModelMapper.toEntity(dto); // Cria a entidade
+        EquipmentModel entity = equipmentModelRepository.save(equipmentModel); // Salva a entidade
 
-        return equipmentModelMapper.toDto(entity);
+        return equipmentModelMapper.toDto(entity); // Retorna o dto
     }
 
+    // Atualiza todos os campos do modelo de equipamento
     public EquipmentModelResponseDto update(Long id, CreateEquipmentModelRequestDto dto) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -55,6 +59,7 @@ public class EquipmentModelService {
         return equipmentModelMapper.toDto(equipmentModel);
     }
 
+    // Atualiza os campos específicos do modelo de equipamento
     public EquipmentModelResponseDto patch(Long id, PatchEquipmentModelRequestDto dto) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -65,6 +70,7 @@ public class EquipmentModelService {
         return equipmentModelMapper.toDto(equipmentModel);
     }
 
+    // Deleta o modelo de equipamento específico pelo seu id
     public void delete(Long id) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -72,6 +78,7 @@ public class EquipmentModelService {
         equipmentModelRepository.delete(equipmentModel);
     }
 
+    // Retorna todos os modelos de equipamento em forma de página
     public Page<EquipmentModelResponseDto> findAll(Pageable pageable) {
         Page<EquipmentModel> equipmentModels = equipmentModelRepository.findAll(pageable);
 
