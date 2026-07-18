@@ -19,6 +19,7 @@ public class AuthController {
         this.authService = authService;
     }
 
+    // Endpoint de registro para usuários
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponseDto> register(
             @Valid @RequestBody UserRegisterRequestDto dto) {
@@ -26,12 +27,18 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(dto));
     }
 
+    // Endpoint de autenticação de usuário já criado
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponseDto> authenticate(
             @Valid @RequestBody UserAuthenticationRequestDto dto) {
         return ResponseEntity.ok(authService.authenticate(dto));
     }
 
+    /*
+        Criar o Endpoint de forget-password
+    */
+
+    // Endpoint para dar refresh no token do usuário
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponseDto> refresh(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader
