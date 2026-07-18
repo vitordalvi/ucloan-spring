@@ -30,17 +30,21 @@ public class EquipmentController {
         this.equipmentHistoryService = equipmentHistoryService;
     }
 
+    // Endpoint para retornar informações do equipmento pelo Id
     @GetMapping("/{id}")
     public ResponseEntity<EquipmentResponseDto> getEquipmentById(@PathVariable Long id) {
         return ResponseEntity.ok(equipmentService.findById(id));
     }
 
+    // Endpoint para criação de um equipamento
     @PostMapping
     public ResponseEntity<EquipmentResponseDto> create(
             @Valid @RequestBody CreateEquipmentRequestDto dto,
             UriComponentsBuilder uriBuilder) {
 
         EquipmentResponseDto response = equipmentService.create(dto);
+
+        // Retornar a url do equipamento criado no body da resposta
         URI location = uriBuilder.path("/api/v1/equipments/{id}")
                 .buildAndExpand(response.id())
                 .toUri();
@@ -48,6 +52,7 @@ public class EquipmentController {
         return ResponseEntity.created(location).body(response);
     }
 
+    // Endpoint para atualizar todos os campos do equipamento específico
     @PutMapping("/{id}")
     public ResponseEntity<EquipmentResponseDto> update(
             @PathVariable Long id,
@@ -58,6 +63,7 @@ public class EquipmentController {
         return ResponseEntity.ok(response);
     }
 
+    // Endpoint para atualizar campos específicos do equipamento específico
     @PatchMapping("/{id}")
     public ResponseEntity<EquipmentResponseDto> patch(
             @PathVariable Long id,
@@ -68,6 +74,7 @@ public class EquipmentController {
         return ResponseEntity.ok(response);
     }
 
+    // Endpoint para deletar um equipamento do banco
     // refazer (aplicar a logica de um "soft delete")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
@@ -76,6 +83,7 @@ public class EquipmentController {
         return ResponseEntity.noContent().build();
     }
 
+    // Endpoint para retornar todos equipamentos em páginas
     @GetMapping
     public ResponseEntity<Page<EquipmentResponseDto>> findAll(@PageableDefault(size = 10) Pageable pageable) {
         Page<EquipmentResponseDto> response = equipmentService.findAll(pageable);
@@ -83,13 +91,15 @@ public class EquipmentController {
         return ResponseEntity.ok(response);
     }
 
-    // transformar isso em Page
+    // Endpoint para retornar o histórico de um equipamento específico
+    // transformar isso em Page (list) não vai ser tão performático caso tenham muitos históricos
     @GetMapping("/{id}/history")
     public ResponseEntity<List<EquipmentHistoryResponseDto>> getHistory(@PathVariable Long id) {
         List<EquipmentHistoryResponseDto> history = equipmentHistoryService.findAllByEquipmentId(id);
         return ResponseEntity.ok(history);
     }
 
+    // Endpoint teste para cargos
     @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/admin")
     public String testAdminViewing() {
