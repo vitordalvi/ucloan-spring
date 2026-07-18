@@ -34,7 +34,7 @@ public class EquipmentService {
         this.equipmentHistoryRepository = equipmentHistoryRepository;
     }
 
-    // retorna o equipamento
+    // Retorna o equipamento específico pelo seu Id
     public EquipmentResponseDto findById(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -50,69 +50,75 @@ public class EquipmentService {
     }
     */
 
-    // Retorno dos equipamentos em paginas para melhor performance
+    // Retorno de todos os equipamentos em página
     public Page<EquipmentResponseDto> findAll(Pageable pageable) {
         Page<Equipment> equipments = equipmentRepository.findAll(pageable);
 
         return equipments.map(equipmentMapper::toDto);
     }
 
-    // Criar equipamento com base no Dto, assim faz a criação do Id automaticamente
+    // Cria um equipamento
     public EquipmentResponseDto create(CreateEquipmentRequestDto dto) {
         // Validação de se o equipmentModelId que foi passado realmente existe no banco
         EquipmentModel equipmentModel = equipmentModelRepository.findById(dto.equipmentModelId())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
-        Equipment equipment = equipmentMapper.toEntity(dto);
-        equipment.setEquipmentModel(equipmentModel);
+        Equipment equipment = equipmentMapper.toEntity(dto); // Cria o equipamento (Vai atribuir os campos)
+        equipment.setEquipmentModel(equipmentModel); // Seta o modelo do equipamento
 
-        Equipment entity = equipmentRepository.save(equipment);
+        Equipment entity = equipmentRepository.save(equipment); // Salva o equipamento no banco
 
-        return equipmentMapper.toDto(entity);
+        return equipmentMapper.toDto(entity); // Retorna o dto do equipamento criado
     }
 
-    // update (PUT), vai ser removido em breve
+    // Atualiza todos os campos de um equipamento específico
     public EquipmentResponseDto update(Long id, CreateEquipmentRequestDto dto) {
+        // Procura o modelo de equipamento
         EquipmentModel equipmentModel = equipmentModelRepository.findById(dto.equipmentModelId())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
+        // Procura o equipamento
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
-        equipment.setEquipmentModel(equipmentModel);
-        equipmentMapper.updateEntityFromDto(dto, equipment);
-        equipmentRepository.save(equipment);
+        equipment.setEquipmentModel(equipmentModel); // Atualiza o modelo do equipamento
+        equipmentMapper.updateEntityFromDto(dto, equipment); // Atualiza o equipamento pelo dto
+        equipmentRepository.save(equipment); // Salva o equipamento no banco
 
-        return equipmentMapper.toDto(equipment);
+        return equipmentMapper.toDto(equipment); // Retorna o dto do equipamento
     }
 
-    // metodo para atualizar o equipamento parcialmente, de acordo com os campos
-    // possivelmente devo adicionar para caso o modelo seja alterado, isso também vá para o histórico
+    // Atualiza campos específicos de um equipamento
     public EquipmentResponseDto patch(Long id, PatchEquipmentRequestDto dto) {
+        // Procura o equipamento
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
+        // Se o equipmentModel foi alterado
         if (dto.equipmentModelId() != null) {
+            // Procura o modelo de equipamento no banco
             EquipmentModel equipmentModel = equipmentModelRepository.findById(dto.equipmentModelId())
                     .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
+            // Se achar, seta o novo modelo de equipamento
             equipment.setEquipmentModel(equipmentModel);
         }
 
+        // Se o estado físico mudou
         if (dto.physicalStatus() != null && dto.physicalStatus() != equipment.getPhysicalStatus()) {
+            // Cria um novo histórico de equipamento e coloca o novo estado físico do equipamento
             EquipmentHistory history = new EquipmentHistory(equipment, dto.physicalStatus(), "Status updated");
-            equipmentHistoryRepository.save(history);
+            equipmentHistoryRepository.save(history); // Salva o histórico no banco
         }
 
-        equipmentMapper.patchEntityFromDto(dto, equipment);
-        equipmentRepository.save(equipment);
+        equipmentMapper.patchEntityFromDto(dto, equipment); // Atualiza os campos do equipamento pelo dto
+        equipmentRepository.save(equipment); // Salva alterações no banco
 
-        return equipmentMapper.toDto(equipment);
+        return equipmentMapper.toDto(equipment); // Retorna o dto do equipamento
     }
 
-    // metodo para deletar um equipamento da base de dados
-    // quando eu fizer as alterações nas classes (por exemplo, "proibir" o delete) completo
-    // da entidade no banco, apenas desabilitar, por segurança.. esse metodo sera alterado
+    // Deleta um equipamento específico pelo seu id
+    // Esse metodo vai ser refatorado para uma ideia de "soft delete"
     public void delete(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
