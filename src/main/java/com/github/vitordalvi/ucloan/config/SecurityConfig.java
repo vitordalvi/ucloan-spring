@@ -20,11 +20,12 @@ import static com.github.vitordalvi.ucloan.entities.enums.Role.ADMIN;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    // Paths públicos, acessíveis sem autenticação
     private static final String[] WHITE_LIST_URL = {
-            "/api/v1/auth/**",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/api/v1/auth/**", // Endpoint de autenticação
+            "/v3/api-docs/**", // Swagger
+            "/swagger-ui/**", // Swagger
+            "/swagger-ui.html"// Swagger
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -39,28 +40,34 @@ public class SecurityConfig {
         this.logoutHandler = logoutHandler;
     }
 
+    // Filtro de segurança principal
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        req -> req.requestMatchers(WHITE_LIST_URL)
-                                .permitAll()
+                .csrf(AbstractHttpConfigurer::disable) // Desativado porque estamos usando JWT e não cookies para autenticação
+                .authorizeHttpRequests( // Endpoints autorizados
+                        req -> req.requestMatchers(WHITE_LIST_URL) // Endpoints publicos
+                                .permitAll() // Autorização para usuários não autenticados acessarem esses endpoints
+                                // Endpoints /admin só quem tem o cargo de gerenciador ou relativo
                                 .requestMatchers("/api/v1/equipments/admin/**").hasAnyRole(ADMIN.name())
                                 .requestMatchers("/api/v1/equipment-models/admin/**").hasAnyRole(ADMIN.name())
-                                .anyRequest()
-                                .authenticated()
+                                .anyRequest() // Qualquer endpoint válido
+                                .authenticated() // Se estiver autenticado
                 )
 
+                // Criação da politica de sessão dos usuários
                 .sessionManagement(session ->
+                        // Sem criação de sessão, já que estamos usando JWT (comunicacao pelo header)
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider) // Validador de credenciais
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // Filtro de autenticação JWT
+                // Endpoint padrão de logout
                 .logout(logout ->
                         logout.logoutUrl("/api/v1/auth/logout")
                                 .addLogoutHandler(logoutHandler)
+                                // Se sucesso
                                 .logoutSuccessHandler((request, response, authentication) ->
-                                        SecurityContextHolder.clearContext())
+                                        SecurityContextHolder.clearContext()) // Limpa o contexto do usuário em memória da aplicação
                 );
 
         return http.build();
