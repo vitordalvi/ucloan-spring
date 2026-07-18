@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
+    // Configuração do Swagger
     @Bean
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";
@@ -18,6 +19,8 @@ public class SwaggerConfig {
                 .addSecurityItem(new SecurityRequirement()
                         .addList(securitySchemeName))
                 .components(
+                        // Adiciona o campo de autenticação para utilizar os
+                        // endpoints que o precisam de autenticação
                         new Components()
                                 .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()
