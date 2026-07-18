@@ -25,11 +25,13 @@ public class EquipmentHistoryService {
         this.equipmentRepository = equipmentRepository;
     }
 
+    // Retorna um histórico específico de um equipamento
     public EquipmentHistory findById(Long id) {
         return equipmentHistoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
     }
 
+    // Retorna o histórico do equipamento específico
     public List<EquipmentHistoryResponseDto> findAllByEquipmentId(Long id) {
         return mapper.toDtoList(equipmentHistoryRepository.findAllByEquipmentId(id));
     }
