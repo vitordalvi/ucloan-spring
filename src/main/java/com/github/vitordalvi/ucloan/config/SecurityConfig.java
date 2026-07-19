@@ -49,8 +49,11 @@ public class SecurityConfig {
                         req -> req.requestMatchers(WHITE_LIST_URL) // Endpoints publicos
                                 .permitAll() // Autorização para usuários não autenticados acessarem esses endpoints
                                 // Endpoints /admin só quem tem o cargo de gerenciador ou relativo
-                                .requestMatchers("/api/v1/equipments/admin/**").hasAnyRole(ADMIN.name())
-                                .requestMatchers("/api/v1/equipment-models/admin/**").hasAnyRole(ADMIN.name())
+                                .requestMatchers(
+                                        "/api/v1/equipments/admin/**",
+                                        "/api/v1/equipment-models/admin/**",
+                                        "/api/v1/users/admin/**")
+                                .hasAnyRole(ADMIN.name())
                                 .anyRequest() // Qualquer endpoint válido
                                 .authenticated() // Se estiver autenticado
                 )
