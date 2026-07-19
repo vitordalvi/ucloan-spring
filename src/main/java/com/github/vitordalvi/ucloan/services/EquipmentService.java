@@ -118,7 +118,6 @@ public class EquipmentService {
     }
 
     // Deleta um equipamento específico pelo seu id
-    // Esse metodo vai ser refatorado para uma ideia de "soft delete"
     public void delete(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
