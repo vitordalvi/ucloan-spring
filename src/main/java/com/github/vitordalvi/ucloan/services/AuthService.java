@@ -5,24 +5,20 @@ import com.github.vitordalvi.ucloan.dto.request.UserAuthenticationRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.UserRegisterRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.AuthenticationResponseDto;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
-import com.github.vitordalvi.ucloan.entities.Token;
 import com.github.vitordalvi.ucloan.entities.enums.Role;
-import com.github.vitordalvi.ucloan.entities.enums.TokenType;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
 import com.github.vitordalvi.ucloan.mapper.TokenMapper;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
 import com.github.vitordalvi.ucloan.repository.TokenRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.NotActiveException;
 
 @Service
 public class AuthService {
@@ -69,16 +65,17 @@ public class AuthService {
     }
 
     // Função de login do usuário
-    public AuthenticationResponseDto authenticate(UserAuthenticationRequestDto request) {
+    @Transactional
+    public AuthenticationResponseDto authenticate(UserAuthenticationRequestDto dto) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.password()
+                        dto.email(),
+                        dto.password()
                 )
         );
 
         // Procura o usuário no banco, pelo email
-        var user = applicationUserRepository.findByEmail(request.email())
+        var user = applicationUserRepository.findByEmail(dto.email())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this email!"));
 
         var jwtToken = jwtService.generateToken(user); // Gera o token para o usuário
@@ -116,10 +113,11 @@ public class AuthService {
     }
 
     // Retorna os tokens atualizados do usuário
+    @Transactional
     public AuthenticationResponseDto refreshToken(String authHeader) {
         // Se o header for nulo ou não começar com o padrão do Authorization, retorna exception
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Header inválido");
+            throw new IllegalArgumentException("Invalid headers");
         }
 
         String refreshToken = authHeader.substring(7); // Armazena o token
@@ -127,16 +125,16 @@ public class AuthService {
 
         // Se o email for nulo, retorna exception
         if (userEmail == null) {
-            throw new ResourceNotFoundException("Token de atualização inválido");
+            throw new ResourceNotFoundException("No records found for this email!");
         }
 
         // Armazena o usuário, pegando pelo username do header
-        var user = applicationUserRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Nenhum usuário encontrado"));
+        var user = applicationUserRepository.findByEmailAndEnabledTrue(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("No users found for this username"));
 
         // Se o token não for válido, retorna exception
         if (!jwtService.isTokenValid(refreshToken, user)) {
-            throw new IllegalArgumentException("Refresh token expirado ou inválido");
+            throw new IllegalArgumentException("Invalid refresh token!");
         }
 
         // Gera o novo token de acesso do usuário
