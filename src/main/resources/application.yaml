@@ -21,7 +21,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate # hibernate só confere, quem vai criar a db vai ser o flyway
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
