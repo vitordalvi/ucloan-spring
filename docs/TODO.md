@@ -18,7 +18,6 @@ To-do-list do sistema:
 ## PENDING
 
 ### ApplicationUserController (/users) ->
-- (GET /me) -> Retorna perfil do próprio usuário (DTO com dados necessários)
 - (PATCH /me) -> Editar dados do perfil (Primeiro nome, sobrenome, (email?!))
   - Se atualizar o email, ele vai poder ser usado como o username de algum outro usuário?
 - (PATCH /me/password) -> Alterar a senha, depois de logado (Acho mais interessante colocar um endpoint específico porque é algo mais crítico)
@@ -28,3 +27,10 @@ To-do-list do sistema:
   - Não atualizar a senha do usuário? Acho que por segurança pode colocar para atualizar somente o email e o usuário usa o endpoint recover-password
 - (DELETE /admin/id) -> Desativar usuário específico (lógica do soft-delete)
   - Configurar no Security Config a rota
+
+### LoanController (/loans) ->
+- (GET /id) -> Ter informações sobre um empréstimo
+- (POST) -> Criar um empréstimo
+- (PATCH/id) -> Editar um empréstimo
+- (GET /id/history) -> Visualizar o histórico do próprio empréstimo? (Validar com o id autenticado)
+  - (GET /admin/id/history) -> Visualizar o histórico de qualquer empréstimo
