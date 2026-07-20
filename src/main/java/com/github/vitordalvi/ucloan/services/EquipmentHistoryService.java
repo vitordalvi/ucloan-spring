@@ -5,7 +5,6 @@ import com.github.vitordalvi.ucloan.entities.EquipmentHistory;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.EquipmentHistoryMapper;
 import com.github.vitordalvi.ucloan.repository.EquipmentHistoryRepository;
-import com.github.vitordalvi.ucloan.repository.EquipmentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +14,11 @@ public class EquipmentHistoryService {
 
     private final EquipmentHistoryRepository equipmentHistoryRepository;
     private final EquipmentHistoryMapper mapper;
-    private final EquipmentRepository equipmentRepository;
 
     public EquipmentHistoryService(EquipmentHistoryRepository equipmentHistoryRepository,
-                                   EquipmentHistoryMapper mapper,
-                                   EquipmentRepository equipmentRepository) {
+                                   EquipmentHistoryMapper mapper) {
         this.equipmentHistoryRepository = equipmentHistoryRepository;
         this.mapper = mapper;
-        this.equipmentRepository = equipmentRepository;
     }
 
     // Retorna um histórico específico de um equipamento
