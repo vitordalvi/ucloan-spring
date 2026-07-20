@@ -5,7 +5,6 @@ import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentModelResponseDto;
 import com.github.vitordalvi.ucloan.entities.EquipmentModel;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
-import com.github.vitordalvi.ucloan.mapper.EquipmentMapper;
 import com.github.vitordalvi.ucloan.mapper.EquipmentModelMapper;
 import com.github.vitordalvi.ucloan.repository.EquipmentModelRepository;
 import org.springframework.data.domain.Page;
@@ -20,7 +19,8 @@ public class EquipmentModelService {
     private final EquipmentModelRepository equipmentModelRepository;
     private final EquipmentModelMapper equipmentModelMapper;
 
-    public EquipmentModelService(EquipmentModelRepository equipmentModelRepository, EquipmentModelMapper equipmentModelMapper, EquipmentMapper equipmentMapper) {
+    public EquipmentModelService(EquipmentModelRepository equipmentModelRepository,
+                                 EquipmentModelMapper equipmentModelMapper) {
         this.equipmentModelRepository = equipmentModelRepository;
         this.equipmentModelMapper = equipmentModelMapper;
     }
