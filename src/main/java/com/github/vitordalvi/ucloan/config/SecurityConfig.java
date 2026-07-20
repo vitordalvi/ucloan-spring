@@ -52,7 +52,8 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/api/v1/equipments/admin/**",
                                         "/api/v1/equipment-models/admin/**",
-                                        "/api/v1/users/admin/**")
+                                        "/api/v1/users/admin/**",
+                                        "/api/v1/loans/admin/**")
                                 .hasAnyRole(ADMIN.name())
                                 .anyRequest() // Qualquer endpoint válido
                                 .authenticated() // Se estiver autenticado
