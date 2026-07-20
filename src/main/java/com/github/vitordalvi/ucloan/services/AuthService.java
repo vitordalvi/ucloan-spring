@@ -17,9 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.NotActiveException;
-
 @Service
 public class AuthService {
 
@@ -56,7 +53,7 @@ public class AuthService {
         user.setRole(Role.USER); // Seta o cargo padrão do usuário
 
         var savedUser = applicationUserRepository.save(user); // Salva o usuário
-        var jwtToken = jwtService.generateToken(savedUser); // Gera o token JWT do o usuário
+        var jwtToken = jwtService.generateToken(savedUser); // Gera o token JWT do usuário
         var refreshToken = jwtService.generateRefreshToken(savedUser); // Gera o refresh token do usuário
 
         saveUserToken(savedUser, jwtToken); // Salva o token e associa ao usuário
