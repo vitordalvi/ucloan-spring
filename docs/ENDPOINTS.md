@@ -65,12 +65,43 @@
   @PreAuthorize("hasRole('ADMIN')")
 - (POST) ->
   - Cria um novo Equipment Model
+ 
+- (PATCH /id) ->
+  - Altera os dados de um Equipment Model
+  @PreAuthorize
+- (DELETE /id) ->
+  - Deleta um equipment model, consequentemente, equipamentos também deveriam ser deletados?!
 
 
-  
+  ----------------------------------------------------------------------------------------
 
+# LoanController (/api/v1/loans)
 
+- (GET) ->
+  - ADMIN: Retorna LoanView (LoanAdminResponseDto)
+  - USER: Retorna LoanView (LoanResponseDto)
 
+- (GET /id) ->
+  - ADMIN: Retorna LoanAdminResponseDto
+  - USER: Se o borrowerId for o mesmo que userId, retorna LoanResponseDto, se não -> new AccessDeniedException
+
+  @PreAuthorize("hasRole('ADMIN')")
+- (PATCH /id) -> 
+  - Atualiza os campos do empréstimo
+    - Deve ser criado um Loan History
+
+  @PreAuthorize("hasRole('ADMIN')")
+- (POST) ->
+  - Cria um novo empréstimo
+    - Deve ser criado um Loan History automaticamente
+
+  @PreAuthorize("hasRole('ADMIN')")
+- (DELETE /id) ->
+  - Deleta o Loan, se LoanStatus != UNAVAILABLE, RETURNED ou AVAILABLE, esse delete não pode acontecer
+
+  @PreAuthorize("hasRole('ADMIN')")
+- (GET /id/history) ->
+  - Retorna o histórico completo de um equipamento específico (Page LoanHistoryAdminResponseDto)
 
 
   
