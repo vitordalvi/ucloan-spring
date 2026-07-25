@@ -1,9 +1,7 @@
 package com.github.vitordalvi.ucloan.controller;
 
-import com.github.vitordalvi.ucloan.dto.response.LoanResponseDto;
 import com.github.vitordalvi.ucloan.dto.view.LoanView;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
-import com.github.vitordalvi.ucloan.entities.enums.Role;
 import com.github.vitordalvi.ucloan.services.LoanService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
