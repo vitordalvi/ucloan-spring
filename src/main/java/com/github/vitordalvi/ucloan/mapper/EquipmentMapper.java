@@ -2,6 +2,7 @@ package com.github.vitordalvi.ucloan.mapper;
 
 import com.github.vitordalvi.ucloan.dto.request.CreateEquipmentRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentRequestDto;
+import com.github.vitordalvi.ucloan.dto.response.EquipmentAdminResponseDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentResponseDto;
 import com.github.vitordalvi.ucloan.entities.Equipment;
 import org.mapstruct.*;
@@ -13,6 +14,9 @@ public interface EquipmentMapper {
 
     @Mapping(target = "equipmentModel", ignore = true)
     Equipment toEntity(CreateEquipmentRequestDto dto);
+
+    @Mapping(target = "equipmentModelId", source = "equipmentModel.id")
+    EquipmentAdminResponseDto toDtoAdmin(Equipment equipment);
     EquipmentResponseDto toDto(Equipment equipment);
 
     List<EquipmentResponseDto> toDtoList(List<Equipment> equipments);

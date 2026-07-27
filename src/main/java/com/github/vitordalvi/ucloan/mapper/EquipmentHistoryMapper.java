@@ -11,6 +11,7 @@ import java.util.List;
 public interface EquipmentHistoryMapper {
 
     @Mapping(source = "equipment.id", target = "equipmentId")
+    @Mapping(source = "equipmentModel.id", target = "equipmentModelId")
     @Mapping(source = "createdBy.id", target = "createdById")
     @Mapping(source = "updatedBy.id", target = "updatedById")
     EquipmentHistoryResponseDto toDto(EquipmentHistory equipmentHistory);
