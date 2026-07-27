@@ -4,6 +4,8 @@ import com.github.vitordalvi.ucloan.dto.request.CreateEquipmentRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentHistoryResponseDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentResponseDto;
+import com.github.vitordalvi.ucloan.dto.view.EquipmentView;
+import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.services.EquipmentHistoryService;
 import com.github.vitordalvi.ucloan.services.EquipmentService;
 import jakarta.validation.Valid;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,10 +33,23 @@ public class EquipmentController {
         this.equipmentHistoryService = equipmentHistoryService;
     }
 
+    @GetMapping
+    public ResponseEntity<Page<EquipmentView>> getAllEquipments(@PageableDefault(size = 10) Pageable pageable,
+                                                                Authentication authentication) {
+        var user = (ApplicationUser) authentication.getPrincipal();
+
+        Page<EquipmentView> response = equipmentService.findAll(user, pageable);
+
+        return ResponseEntity.ok(response);
+    }
+
     // Endpoint para retornar informações do equipmento pelo Id
     @GetMapping("/{id}")
-    public ResponseEntity<EquipmentResponseDto> getEquipmentById(@PathVariable Long id) {
-        return ResponseEntity.ok(equipmentService.findById(id));
+    public ResponseEntity<EquipmentView> getEquipmentById(@PathVariable Long id,
+                                                                 Authentication authentication) {
+        var user = (ApplicationUser) authentication.getPrincipal();
+
+        return ResponseEntity.ok(equipmentService.findById(id, user));
     }
 
     // Endpoint para criação de um equipamento
@@ -65,11 +81,11 @@ public class EquipmentController {
 
     // Endpoint para atualizar campos específicos do equipamento específico
     @PatchMapping("/{id}")
-    public ResponseEntity<EquipmentResponseDto> patch(
+    public ResponseEntity<EquipmentView> patch(
             @PathVariable Long id,
             @Valid @RequestBody PatchEquipmentRequestDto dto) {
 
-        EquipmentResponseDto response = equipmentService.patch(id, dto);
+        EquipmentView response = equipmentService.patch(id, dto);
 
         return ResponseEntity.ok(response);
     }
@@ -81,14 +97,6 @@ public class EquipmentController {
 
         equipmentService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // Endpoint para retornar todos equipamentos em páginas
-    @GetMapping
-    public ResponseEntity<Page<EquipmentResponseDto>> findAll(@PageableDefault(size = 10) Pageable pageable) {
-        Page<EquipmentResponseDto> response = equipmentService.findAll(pageable);
-
-        return ResponseEntity.ok(response);
     }
 
     // Endpoint para retornar o histórico de um equipamento específico
