@@ -9,8 +9,6 @@ import jakarta.persistence.*;
 @Table(name = "tb_equipment")
 public class Equipment extends AuditableBaseEntity {
 
-    private String description;
-
     @ManyToOne
     @JoinColumn(name = "equipment_model_id", nullable = false)
     private EquipmentModel equipmentModel;
@@ -18,6 +16,8 @@ public class Equipment extends AuditableBaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "physical_status")
     private PhysicalStatus physicalStatus;
+
+    private String description;
 
     public String getDescription() {
         return description;
