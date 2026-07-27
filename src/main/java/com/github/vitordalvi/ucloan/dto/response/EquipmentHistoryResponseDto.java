@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public record EquipmentHistoryResponseDto(
         Long id,
         Long equipmentId,
+        Long equipmentModelId,
         PhysicalStatus physicalStatus,
         String notes,
         LocalDateTime createdAt,
