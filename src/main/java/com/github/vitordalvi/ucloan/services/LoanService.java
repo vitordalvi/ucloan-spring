@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LoanService {
@@ -78,6 +79,10 @@ public class LoanService {
         return loanHistory.map(loanHistoryMapper::toDto);
     }
 
+    public Optional<Long> findBorrowerIdByEquipmentId(Long equipmentId) {
+        return loanRepository.findBorrowerIdByEquipmentId(equipmentId);
+    }
+
     public LoanResponseDto createLoan(CreateLoanRequestDto dto) {
         var borrower = applicationUserRepository.findByIdAndEnabledTrue(dto.borrowerId())
                 .orElseThrow(() -> new BusinessException("User is disabled or doesn't exists!"));
@@ -97,6 +102,10 @@ public class LoanService {
         var savedLoan = loanRepository.save(loan);
 
         return loanMapper.toDto(savedLoan);
+    }
+
+    public boolean isEquipmentLoaned(Long equipmentId) {
+        return loanRepository.existsByEquipmentIdAndLoanStatus(equipmentId, LoanStatus.BORROWED);
     }
 
 }
