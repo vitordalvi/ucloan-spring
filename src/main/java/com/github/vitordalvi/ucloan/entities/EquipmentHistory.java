@@ -14,17 +14,26 @@ public class EquipmentHistory extends AuditableBaseEntity {
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipment_model_id")
+    private EquipmentModel equipmentModel;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "physical_status")
     private PhysicalStatus physicalStatus;
 
+    private String equipmentDescription;
+
     private String notes;
 
-    protected EquipmentHistory() {}
+    public EquipmentHistory() {}
 
-    public EquipmentHistory(Equipment equipment, PhysicalStatus physicalStatus, String notes) {
+    public EquipmentHistory(Equipment equipment, EquipmentModel equipmentModel, PhysicalStatus physicalStatus,
+                            String equipmentDescription, String notes) {
         this.equipment = equipment;
+        this.equipmentModel = equipmentModel;
         this.physicalStatus = physicalStatus;
+        this.equipmentDescription = equipmentDescription;
         this.notes = notes;
     }
 
@@ -36,12 +45,28 @@ public class EquipmentHistory extends AuditableBaseEntity {
         this.equipment = equipment;
     }
 
+    public EquipmentModel getEquipmentModel() {
+        return equipmentModel;
+    }
+
+    public void setEquipmentModel(EquipmentModel equipmentModel) {
+        this.equipmentModel = equipmentModel;
+    }
+
     public PhysicalStatus getPhysicalStatus() {
         return physicalStatus;
     }
 
     public void setPhysicalStatus(PhysicalStatus physicalStatus) {
         this.physicalStatus = physicalStatus;
+    }
+
+    public String getEquipmentDescription() {
+        return equipmentDescription;
+    }
+
+    public void setEquipmentDescription(String equipmentDescription) {
+        this.equipmentDescription = equipmentDescription;
     }
 
     public String getNotes() {
