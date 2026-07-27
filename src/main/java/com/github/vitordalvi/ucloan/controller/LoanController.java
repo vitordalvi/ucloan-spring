@@ -26,6 +26,7 @@ public class LoanController {
         this.loanService = loanService;
     }
 
+    // 
     @GetMapping("/{id}")
     public ResponseEntity<LoanView> getLoan(@PathVariable Long id,
                                             Authentication authentication) throws AccessDeniedException {
