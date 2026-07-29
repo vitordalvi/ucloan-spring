@@ -2,6 +2,7 @@ package com.github.vitordalvi.ucloan.controller;
 
 import com.github.vitordalvi.ucloan.dto.request.CreateEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentModelRequestDto;
+import com.github.vitordalvi.ucloan.dto.response.EquipmentModelAdminResponseDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentModelResponseDto;
 import com.github.vitordalvi.ucloan.dto.view.EquipmentModelView;
 import com.github.vitordalvi.ucloan.dto.view.EquipmentView;
@@ -53,22 +54,22 @@ public class EquipmentModelController {
 
     // Endpoint para atualizar todos os campos do modelo de equipamento específico
     @PutMapping("/{id}")
-    public ResponseEntity<EquipmentModelResponseDto> update(
+    public ResponseEntity<EquipmentModelAdminResponseDto> update(
             @PathVariable Long id,
             @Valid @RequestBody CreateEquipmentModelRequestDto dto) {
 
-        EquipmentModelResponseDto response = equipmentModelService.update(id, dto);
+        EquipmentModelAdminResponseDto response = equipmentModelService.update(id, dto);
 
         return ResponseEntity.ok(response);
     }
 
     // Endpoint para atualizar campos específicos do modelo de equipamento específico
     @PatchMapping("/{id}")
-    public ResponseEntity<EquipmentModelResponseDto> patch(
+    public ResponseEntity<EquipmentModelAdminResponseDto> patch(
             @PathVariable Long id,
             @Valid @RequestBody PatchEquipmentModelRequestDto dto) {
 
-        EquipmentModelResponseDto response = equipmentModelService.patch(id, dto);
+        EquipmentModelAdminResponseDto response = equipmentModelService.patch(id, dto);
 
         return ResponseEntity.ok(response);
     }
