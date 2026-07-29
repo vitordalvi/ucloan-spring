@@ -3,12 +3,16 @@ package com.github.vitordalvi.ucloan.controller;
 import com.github.vitordalvi.ucloan.dto.request.CreateEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentModelResponseDto;
+import com.github.vitordalvi.ucloan.dto.view.EquipmentModelView;
+import com.github.vitordalvi.ucloan.dto.view.EquipmentView;
+import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.services.EquipmentModelService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,8 +30,10 @@ public class EquipmentModelController {
 
     // Endpoint para retornar as informações de um modelo de equipamento específico
     @GetMapping("/{id}")
-    public ResponseEntity<EquipmentModelResponseDto> getEquipmentModelById(@PathVariable Long id) {
-        return ResponseEntity.ok(equipmentModelService.findById(id));
+    public ResponseEntity<EquipmentModelView> getEquipmentModelById(@PathVariable Long id,
+                                                                    @AuthenticationPrincipal ApplicationUser user) {
+
+        return ResponseEntity.ok(equipmentModelService.findById(id, user));
     }
 
     // Endpoint para criação de um modelo de equipamento
@@ -77,8 +83,9 @@ public class EquipmentModelController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EquipmentModelResponseDto>> findAll(@PageableDefault(size = 10) Pageable pageable) {
-        Page<EquipmentModelResponseDto> response = equipmentModelService.findAll(pageable);
+    public ResponseEntity<Page<EquipmentModelView>> findAll(@PageableDefault(size = 10) Pageable pageable,
+                                                                   @AuthenticationPrincipal ApplicationUser user) {
+        Page<EquipmentModelView> response = equipmentModelService.findAll(user, pageable);
 
         return ResponseEntity.ok(response);
     }
