@@ -20,8 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -69,7 +67,6 @@ public class EquipmentService {
     }
 
     // Retorno de todos os equipamentos em página
-    @Transactional
     public Page<EquipmentView> findAll(ApplicationUser user, Pageable pageable) {
         // Se o usuário for administrador, retorna todos os equipamentos
         if (user.getRole() == Role.ADMIN) {
@@ -165,6 +162,7 @@ public class EquipmentService {
     }
 
     // Deleta um equipamento específico pelo seu id
+    @Transactional
     public void delete(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
