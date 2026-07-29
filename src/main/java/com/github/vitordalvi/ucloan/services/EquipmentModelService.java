@@ -2,6 +2,7 @@ package com.github.vitordalvi.ucloan.services;
 
 import com.github.vitordalvi.ucloan.dto.request.CreateEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentModelRequestDto;
+import com.github.vitordalvi.ucloan.dto.response.EquipmentModelAdminResponseDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentModelResponseDto;
 import com.github.vitordalvi.ucloan.dto.view.EquipmentModelView;
 import com.github.vitordalvi.ucloan.dto.view.EquipmentView;
@@ -41,7 +42,7 @@ public class EquipmentModelService {
         return equipmentModelMapper.toDto(equipmentModel);
     }
 
-    // Retorna a lista com todos os modelos de equipamentos em lista
+    // Retorna a lista com todos os modelos de equipamentos paginados
     public Page<EquipmentModelView> findAll(ApplicationUser user, Pageable pageable) {
         Page<EquipmentModel> equipmentModels = equipmentModelRepository.findAll(pageable);
 
@@ -61,25 +62,25 @@ public class EquipmentModelService {
     }
 
     // Atualiza todos os campos do modelo de equipamento
-    public EquipmentModelResponseDto update(Long id, CreateEquipmentModelRequestDto dto) {
+    public EquipmentModelAdminResponseDto update(Long id, CreateEquipmentModelRequestDto dto) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
         equipmentModelMapper.updateEntityFromDto(dto, equipmentModel);
         equipmentModelRepository.save(equipmentModel);
 
-        return equipmentModelMapper.toDto(equipmentModel);
+        return equipmentModelMapper.toDtoAdmin(equipmentModel);
     }
 
     // Atualiza os campos específicos do modelo de equipamento
-    public EquipmentModelResponseDto patch(Long id, PatchEquipmentModelRequestDto dto) {
+    public EquipmentModelAdminResponseDto patch(Long id, PatchEquipmentModelRequestDto dto) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
         equipmentModelMapper.patchEntityFromDto(dto, equipmentModel);
         equipmentModelRepository.save(equipmentModel);
 
-        return equipmentModelMapper.toDto(equipmentModel);
+        return equipmentModelMapper.toDtoAdmin(equipmentModel);
     }
 
     // Deleta o modelo de equipamento específico pelo seu id
@@ -90,14 +91,4 @@ public class EquipmentModelService {
         equipmentModelRepository.delete(equipmentModel);
     }
 
-    // Retorna todos os modelos de equipamento em forma de página
-    public Page<EquipmentModelView> findAll(Pageable pageable, ApplicationUser user) {
-        Page<EquipmentModel> equipmentModels = equipmentModelRepository.findAll(pageable);
-
-        if (user.getRole() == Role.ADMIN) {
-            return equipmentModels.map(equipmentModelMapper::toDtoAdmin);
-        }
-
-        return equipmentModels.map(equipmentModelMapper::toDto);
-    }
 }
