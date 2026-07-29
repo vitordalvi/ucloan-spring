@@ -3,7 +3,11 @@ package com.github.vitordalvi.ucloan.services;
 import com.github.vitordalvi.ucloan.dto.request.CreateEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentModelResponseDto;
+import com.github.vitordalvi.ucloan.dto.view.EquipmentModelView;
+import com.github.vitordalvi.ucloan.dto.view.EquipmentView;
+import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.entities.EquipmentModel;
+import com.github.vitordalvi.ucloan.entities.enums.Role;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.EquipmentModelMapper;
 import com.github.vitordalvi.ucloan.repository.EquipmentModelRepository;
@@ -26,18 +30,26 @@ public class EquipmentModelService {
     }
 
     // Retorna um modelo de equipamento pelo seu id
-    public EquipmentModelResponseDto findById(Long id) {
+    public EquipmentModelView findById(Long id, ApplicationUser user) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
+
+        if (user.getRole() == Role.ADMIN) {
+            return equipmentModelMapper.toDtoAdmin(equipmentModel);
+        }
 
         return equipmentModelMapper.toDto(equipmentModel);
     }
 
     // Retorna a lista com todos os modelos de equipamentos em lista
-    public List<EquipmentModelResponseDto> findAll() {
-        List<EquipmentModel> equipmentModels = equipmentModelRepository.findAll();
+    public Page<EquipmentModelView> findAll(ApplicationUser user, Pageable pageable) {
+        Page<EquipmentModel> equipmentModels = equipmentModelRepository.findAll(pageable);
 
-        return equipmentModelMapper.toDtoList(equipmentModels);
+        if (user.getRole() == Role.ADMIN) {
+            return equipmentModels.map(equipmentModelMapper::toDtoAdmin);
+        }
+
+        return equipmentModels.map(equipmentModelMapper::toDto);
     }
 
     // Cria um modelo de equipamento
@@ -79,8 +91,12 @@ public class EquipmentModelService {
     }
 
     // Retorna todos os modelos de equipamento em forma de página
-    public Page<EquipmentModelResponseDto> findAll(Pageable pageable) {
+    public Page<EquipmentModelView> findAll(Pageable pageable, ApplicationUser user) {
         Page<EquipmentModel> equipmentModels = equipmentModelRepository.findAll(pageable);
+
+        if (user.getRole() == Role.ADMIN) {
+            return equipmentModels.map(equipmentModelMapper::toDtoAdmin);
+        }
 
         return equipmentModels.map(equipmentModelMapper::toDto);
     }
