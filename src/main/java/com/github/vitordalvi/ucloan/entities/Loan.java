@@ -4,6 +4,7 @@ import com.github.vitordalvi.ucloan.entities.base.AuditableBaseEntity;
 import com.github.vitordalvi.ucloan.entities.enums.LoanStatus;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,7 +27,7 @@ public class Loan extends AuditableBaseEntity {
     private LocalDateTime startDate = LocalDateTime.now();
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     private String description;
 
@@ -58,7 +59,7 @@ public class Loan extends AuditableBaseEntity {
         return startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 

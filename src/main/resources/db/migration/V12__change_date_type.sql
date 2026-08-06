@@ -1,0 +1,2 @@
+ALTER TABLE tb_loan
+ALTER COLUMN end_date TYPE DATE;
