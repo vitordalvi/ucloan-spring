@@ -50,10 +50,10 @@ public class SecurityConfig {
                                 .permitAll() // Autorização para usuários não autenticados acessarem esses endpoints
                                 // Endpoints /admin só quem tem o cargo de gerenciador ou relativo
                                 .requestMatchers(
-                                        "/api/v1/equipments/admin/**",
-                                        "/api/v1/equipment-models/admin/**",
-                                        "/api/v1/users/admin/**",
-                                        "/api/v1/loans/admin/**")
+                                        "/api/v1/equipments/**",
+                                        "/api/v1/equipment-models/**",
+                                        "/api/v1/users/**",
+                                        "/api/v1/loans/**")
                                 .hasAnyRole(ADMIN.name())
                                 .anyRequest() // Qualquer endpoint válido
                                 .authenticated() // Se estiver autenticado
