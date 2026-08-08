@@ -8,6 +8,7 @@ import com.github.vitordalvi.ucloan.dto.view.EquipmentModelView;
 import com.github.vitordalvi.ucloan.dto.view.EquipmentView;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.services.EquipmentModelService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class EquipmentModelController {
     }
 
     // Endpoint para criação de um modelo de equipamento
+    @Transactional
     @PostMapping
     public ResponseEntity<EquipmentModelResponseDto> create(
             @Valid @RequestBody CreateEquipmentModelRequestDto dto,
@@ -53,6 +55,7 @@ public class EquipmentModelController {
     }
 
     // Endpoint para atualizar todos os campos do modelo de equipamento específico
+    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity<EquipmentModelAdminResponseDto> update(
             @PathVariable Long id,
@@ -64,6 +67,7 @@ public class EquipmentModelController {
     }
 
     // Endpoint para atualizar campos específicos do modelo de equipamento específico
+    @Transactional
     @PatchMapping("/{id}")
     public ResponseEntity<EquipmentModelAdminResponseDto> patch(
             @PathVariable Long id,
@@ -76,6 +80,7 @@ public class EquipmentModelController {
 
     // Endpoint para deletar um modelo de equipamento do banco
     // refazer (aplicar a logica de um "soft delete")
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         equipmentModelService.delete(id);

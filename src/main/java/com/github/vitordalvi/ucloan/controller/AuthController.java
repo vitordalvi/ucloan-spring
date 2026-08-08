@@ -4,6 +4,7 @@ import com.github.vitordalvi.ucloan.dto.request.UserAuthenticationRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.UserRegisterRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.AuthenticationResponseDto;
 import com.github.vitordalvi.ucloan.services.AuthService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ public class AuthController {
     }
 
     // Endpoint de registro para usuários
+    @Transactional
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponseDto> register(
             @Valid @RequestBody UserRegisterRequestDto dto) {
@@ -28,6 +30,7 @@ public class AuthController {
     }
 
     // Endpoint de autenticação de usuário já criado
+    @Transactional
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponseDto> authenticate(
             @Valid @RequestBody UserAuthenticationRequestDto dto) {
@@ -39,6 +42,7 @@ public class AuthController {
     */
 
     // Endpoint para dar refresh no token do usuário
+    @Transactional
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponseDto> refresh(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader

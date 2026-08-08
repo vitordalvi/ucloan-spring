@@ -8,6 +8,7 @@ import com.github.vitordalvi.ucloan.dto.view.EquipmentView;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.services.EquipmentHistoryService;
 import com.github.vitordalvi.ucloan.services.EquipmentService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +54,7 @@ public class EquipmentController {
     }
 
     // Endpoint para criação de um equipamento
+    @Transactional
     @PostMapping
     public ResponseEntity<EquipmentResponseDto> create(
             @Valid @RequestBody CreateEquipmentRequestDto dto,
@@ -69,6 +71,7 @@ public class EquipmentController {
     }
 
     // Endpoint para atualizar todos os campos do equipamento específico
+    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity<EquipmentResponseDto> update(
             @PathVariable Long id,
@@ -80,6 +83,7 @@ public class EquipmentController {
     }
 
     // Endpoint para atualizar campos específicos do equipamento específico
+    @Transactional
     @PatchMapping("/{id}")
     public ResponseEntity<EquipmentView> patch(
             @PathVariable Long id,
@@ -92,6 +96,7 @@ public class EquipmentController {
 
     // Endpoint para deletar um equipamento do banco
     // refazer (aplicar a logica de um "soft delete")
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
 

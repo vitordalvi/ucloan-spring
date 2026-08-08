@@ -6,6 +6,7 @@ import com.github.vitordalvi.ucloan.dto.response.LoanResponseDto;
 import com.github.vitordalvi.ucloan.dto.view.LoanView;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.services.LoanService;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -63,6 +64,7 @@ public class LoanController {
     }
 
     @PostMapping
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LoanResponseDto> createLoan(@RequestBody CreateLoanRequestDto dto,
                                                       UriComponentsBuilder uriBuilder) {

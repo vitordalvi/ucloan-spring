@@ -8,9 +8,11 @@ import com.github.vitordalvi.ucloan.dto.response.UserResponseDto;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
 import com.github.vitordalvi.ucloan.services.ApplicationUserService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,6 +33,7 @@ public class ApplicationUserController {
         return ResponseEntity.ok(applicationUserService.getUser(user.getId()));
     }
 
+    @Transactional
     @PatchMapping("/me")
     public ResponseEntity<UserResponseDto> updateMe(Authentication authentication,
                                                     @Valid @RequestBody UserPatchRequestDto dto) {
@@ -39,10 +42,10 @@ public class ApplicationUserController {
         return ResponseEntity.ok(applicationUserService.updateUser(user.getId(), dto));
     }
 
+    @Transactional
     @PatchMapping("/me/password")
-    public ResponseEntity<Void> changePassword(Authentication authentication,
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal ApplicationUser user,
                                                @Valid @RequestBody UserChangePasswordDtoRequest dto) {
-        var user = (ApplicationUser) authentication.getPrincipal();
         applicationUserService.changePassword(user.getId(), dto);
 
         return ResponseEntity.noContent().build();
@@ -53,6 +56,7 @@ public class ApplicationUserController {
         return ResponseEntity.ok(applicationUserService.getUserAsAdmin(id));
     }
 
+    @Transactional
     @PatchMapping("/admin/{id}")
     public ResponseEntity<UserAdminResponseDto> updateUserAsAdmin(@PathVariable Long id,
                                                                   @Valid @RequestBody UserAdminPatchRequestDto dto) {
