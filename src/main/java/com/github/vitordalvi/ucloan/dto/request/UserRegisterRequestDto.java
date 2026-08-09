@@ -12,9 +12,9 @@ public record UserRegisterRequestDto(
         @Size(max = 50)
         String lastName,
 
-        @NotBlank(message = "A senha é obrigatória")
+        @NotBlank(message = "O campo e-mail é obrigatório")
         @Email(message = "Formato de e-mail inválido")
         String email,
 
-        @NotBlank @Size(min = 6, max = 60, message = "A senha deve ter entre 6 e 60 caracteres.")
+        @NotBlank @Size(min = 6, max = 60, message = "A senha deve ter conter entre 6 a 60 caracteres.")
         String password) {}
