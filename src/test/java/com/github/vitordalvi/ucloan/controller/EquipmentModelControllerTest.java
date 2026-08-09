@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -14,6 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EquipmentModelController.class)
+@ActiveProfiles("test")
 public class EquipmentModelControllerTest {
 
     @Autowired
@@ -22,16 +27,32 @@ public class EquipmentModelControllerTest {
     @MockitoBean
     private EquipmentModelService equipmentModelService;
 
+    @MockitoBean
+    private UserDetailsService userDetailsService;
+
+    @MockitoBean
+    private AuthenticationProvider authenticationProvider;
+
+    @MockitoBean
+    private PasswordEncoder passwordEncoder;
+
+    @MockitoBean
+    private com.github.vitordalvi.ucloan.config.JwtService jwtService;
+
+    @MockitoBean
+    private com.github.vitordalvi.ucloan.config.JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockitoBean
+    private org.springframework.security.web.authentication.logout.LogoutHandler logoutHandler;
+
     @Autowired
-    private ObjectMapper objectMapper; // converter objetos java -> json
+    private ObjectMapper objectMapper;
 
     @Test
     void shouldReturn400WhenFieldsAreBlank() throws Exception {
-        // Arrange
         CreateEquipmentModelRequestDto dto = new CreateEquipmentModelRequestDto("", "");
 
-        // Act & Assert
-        mockMvc.perform(post("api/v1/equipment-models")
+        mockMvc.perform(post("/api/v1/equipment-models")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
