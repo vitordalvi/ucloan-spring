@@ -3,6 +3,7 @@ package com.github.vitordalvi.ucloan.entities;
 import com.github.vitordalvi.ucloan.entities.base.AuditableBaseEntity;
 import com.github.vitordalvi.ucloan.entities.enums.LoanStatus;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,7 +25,8 @@ public class Loan extends AuditableBaseEntity {
     private Equipment equipment;
 
     @Column(name = "start_date")
-    private LocalDateTime startDate = LocalDateTime.now();
+    @CreatedDate
+    private LocalDateTime startDate;
 
     @Column(name = "end_date")
     private LocalDate endDate;
