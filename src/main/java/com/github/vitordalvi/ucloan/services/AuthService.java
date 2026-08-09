@@ -6,6 +6,7 @@ import com.github.vitordalvi.ucloan.dto.request.UserRegisterRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.AuthenticationResponseDto;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.entities.enums.Role;
+import com.github.vitordalvi.ucloan.exceptions.BusinessException;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
 import com.github.vitordalvi.ucloan.mapper.TokenMapper;
@@ -47,6 +48,11 @@ public class AuthService {
 
     // Função de registro de um usuário
     public AuthenticationResponseDto register(UserRegisterRequestDto request) {
+
+        if (applicationUserRepository.existsByEmailAndEnabledTrue(request.email())) {
+            throw new BusinessException("This e-mail is currently in use!");
+        }
+
         var user = userMapper.toEntity(request); // Cria a entidade do usuário com os dados do dto
 
         user.setPassword(passwordEncoder.encode(request.password())); // Seta a senha do usuário já criptografando
