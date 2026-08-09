@@ -54,7 +54,7 @@ public class SecurityConfig {
                                         "/api/v1/equipment-models/**",
                                         "/api/v1/users/**",
                                         "/api/v1/loans/**")
-                                .hasAnyRole(ADMIN.name())
+                                .hasAnyRole("USER", "ADMIN")
                                 .anyRequest() // Qualquer endpoint válido
                                 .authenticated() // Se estiver autenticado
                 )
