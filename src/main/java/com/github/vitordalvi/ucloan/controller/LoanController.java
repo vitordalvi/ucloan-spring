@@ -1,7 +1,6 @@
 package com.github.vitordalvi.ucloan.controller;
 
 import com.github.vitordalvi.ucloan.dto.request.CreateLoanRequestDto;
-import com.github.vitordalvi.ucloan.dto.response.LoanAdminResponseDto;
 import com.github.vitordalvi.ucloan.dto.response.LoanResponseDto;
 import com.github.vitordalvi.ucloan.dto.view.LoanView;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
@@ -11,15 +10,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequestMapping("/api/v1/loans")
