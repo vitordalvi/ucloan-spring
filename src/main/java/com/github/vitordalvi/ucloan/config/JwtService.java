@@ -1,5 +1,6 @@
 package com.github.vitordalvi.ucloan.config;
 
+import com.github.vitordalvi.ucloan.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -27,6 +28,12 @@ public class JwtService {
 
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
+
+    private final TokenRepository tokenRepository;
+
+    public JwtService(TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
+    }
 
     // Função para extrair o username do usuário pelo token
     public String extractUsername(String token) {
@@ -77,12 +84,16 @@ public class JwtService {
     // Retorna se o token é valido, pelo nome do usuário e regra de expiração
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token) && !isTokenRevoked(token);
     }
 
     // Retorna se o token está ou não expirado, vendo se a expiração já passou
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
+    }
+
+    private boolean isTokenRevoked(String token) {
+        return tokenRepository.findTokenByToken(token).isPresent();
     }
 
     // Retorna a Expiration do Token pela claim
