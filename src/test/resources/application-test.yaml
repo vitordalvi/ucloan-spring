@@ -8,6 +8,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+    show-sql: true
 
   flyway:
+    enabled: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
     enabled: false
