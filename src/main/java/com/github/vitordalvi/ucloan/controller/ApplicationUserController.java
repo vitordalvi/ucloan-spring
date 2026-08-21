@@ -27,17 +27,14 @@ public class ApplicationUserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> getMe(Authentication authentication) {
-        var user = (ApplicationUser) authentication.getPrincipal();
-
+    public ResponseEntity<UserResponseDto> getMe(@AuthenticationPrincipal ApplicationUser user) {
         return ResponseEntity.ok(applicationUserService.getUser(user.getId()));
     }
 
     @Transactional
     @PatchMapping("/me")
-    public ResponseEntity<UserResponseDto> updateMe(Authentication authentication,
+    public ResponseEntity<UserResponseDto> updateMe(@AuthenticationPrincipal ApplicationUser user,
                                                     @Valid @RequestBody UserPatchRequestDto dto) {
-        var user = (ApplicationUser) authentication.getPrincipal();
 
         return ResponseEntity.ok(applicationUserService.updateUser(user.getId(), dto));
     }
