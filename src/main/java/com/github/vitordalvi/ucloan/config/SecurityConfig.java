@@ -3,6 +3,7 @@ package com.github.vitordalvi.ucloan.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -48,7 +49,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Profile({"dev", "test"})
+    public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception {
         List<String> publicUrls = new ArrayList<>(List.of(PUBLIC_URLS));
 
         if (swaggerEnabled) {
@@ -59,7 +61,34 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(publicUrls.toArray(new String[0]))
-                                .permitAll()
+                        .permitAll()
+                        .requestMatchers(
+                                "/api/v1/equipments/**",
+                                "/api/v1/equipment-models/**",
+                                "/api/v1/users/**",
+                                "/api/v1/loans/**")
+                        .permitAll()
+                )
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout ->
+                        logout.logoutUrl("/api/v1/auth/logout")
+                                .addLogoutHandler(logoutHandler)
+                                .logoutSuccessHandler((request, response, authentication) ->
+                                        SecurityContextHolder.clearContext())
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    @Profile("prod")
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(req -> req
                         .requestMatchers(
                                 "/api/v1/equipments/**",
                                 "/api/v1/equipment-models/**",
