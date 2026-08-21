@@ -35,3 +35,4 @@ application:
 logging:
   level:
     org.springframework.security: WARN
+    

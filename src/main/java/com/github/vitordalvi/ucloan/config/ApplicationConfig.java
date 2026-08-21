@@ -2,6 +2,8 @@ package com.github.vitordalvi.ucloan.config;
 
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,10 +20,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.github.vitordalvi.ucloan.entities.enums.Role;
 
 
+@Slf4j
 @Configuration
 public class ApplicationConfig {
 
     private final ApplicationUserRepository applicationUserRepository;
+
+    @Value("${ADMIN_DEFAULT_PASSWORD}")
+    private String ADMIN_DEFAULT_PASSWORD;
 
     public ApplicationConfig(ApplicationUserRepository applicationUserRepository) {
         this.applicationUserRepository = applicationUserRepository;
@@ -53,13 +59,14 @@ public class ApplicationConfig {
     @Profile("dev")
     @Bean
     public CommandLineRunner seedAdmin(ApplicationUserRepository repo, PasswordEncoder encoder) {
+
         return args -> {
             if (repo.findByEmail("admin@ucloan.com").isEmpty()) {
                 ApplicationUser admin = new ApplicationUser();
                 admin.setFirstName("System");
                 admin.setLastName("Admin");
                 admin.setEmail("admin@ucloan.com");
-                admin.setPassword(encoder.encode("123456"));
+                admin.setPassword(encoder.encode(ADMIN_DEFAULT_PASSWORD));
                 admin.setRole(Role.ADMIN);
                 repo.save(admin);
             }
