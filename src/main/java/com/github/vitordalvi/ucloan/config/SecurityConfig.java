@@ -67,8 +67,8 @@ public class SecurityConfig {
                                 "/api/v1/equipment-models/**",
                                 "/api/v1/users/**",
                                 "/api/v1/loans/**")
-                        //.hasAnyRole("USER", "ADMIN") Quando for testar a segurança / autenticação no perfil de dev/test
-                        //.anyRequest() // Tirar os comentários
+                        .hasAnyRole("USER", "ADMIN")
+                        .anyRequest()
                         .permitAll()
                 )
                 .sessionManagement(session ->
