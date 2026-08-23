@@ -12,6 +12,7 @@ import com.github.vitordalvi.ucloan.entities.enums.Role;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.EquipmentModelMapper;
 import com.github.vitordalvi.ucloan.repository.EquipmentModelRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,7 @@ public class EquipmentModelService {
     }
 
     // Atualiza todos os campos do modelo de equipamento
+    @Transactional
     public EquipmentModelAdminResponseDto update(Long id, CreateEquipmentModelRequestDto dto) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -73,6 +75,7 @@ public class EquipmentModelService {
     }
 
     // Atualiza os campos específicos do modelo de equipamento
+    @Transactional
     public EquipmentModelAdminResponseDto patch(Long id, PatchEquipmentModelRequestDto dto) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
@@ -84,6 +87,7 @@ public class EquipmentModelService {
     }
 
     // Deleta o modelo de equipamento específico pelo seu id
+    @Transactional
     public void delete(Long id) {
         EquipmentModel equipmentModel = equipmentModelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));

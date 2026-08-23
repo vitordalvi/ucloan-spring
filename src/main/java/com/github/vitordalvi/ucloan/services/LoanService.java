@@ -16,6 +16,7 @@ import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
 import com.github.vitordalvi.ucloan.repository.EquipmentRepository;
 import com.github.vitordalvi.ucloan.repository.LoanHistoryRepository;
 import com.github.vitordalvi.ucloan.repository.LoanRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -90,6 +91,7 @@ public class LoanService {
         return loanRepository.findBorrowerIdByEquipmentId(equipmentId);
     }
 
+    @Transactional
     public LoanResponseDto createLoan(CreateLoanRequestDto dto) {
         var borrower = applicationUserRepository.findByIdAndEnabledTrue(dto.borrowerId())
                 .orElseThrow(() -> new BusinessException("User is disabled or doesn't exists!"));

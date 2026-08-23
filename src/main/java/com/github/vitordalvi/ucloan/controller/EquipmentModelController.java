@@ -5,11 +5,10 @@ import com.github.vitordalvi.ucloan.dto.request.PatchEquipmentModelRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentModelAdminResponseDto;
 import com.github.vitordalvi.ucloan.dto.response.EquipmentModelResponseDto;
 import com.github.vitordalvi.ucloan.dto.view.EquipmentModelView;
-import com.github.vitordalvi.ucloan.dto.view.EquipmentView;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.services.EquipmentModelService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
+@Slf4j
 @RestController
 @RequestMapping("api/v1/equipment-models")
 public class EquipmentModelController {
@@ -34,12 +34,11 @@ public class EquipmentModelController {
     @GetMapping("/{id}")
     public ResponseEntity<EquipmentModelView> getEquipmentModelById(@PathVariable Long id,
                                                                     @AuthenticationPrincipal ApplicationUser user) {
-
+        log.info("User {} is fetching equipment model: {}", user.getId(), id);
         return ResponseEntity.ok(equipmentModelService.findById(id, user));
     }
 
     // Endpoint para criação de um modelo de equipamento
-    @Transactional
     @PostMapping
     public ResponseEntity<EquipmentModelResponseDto> create(
             @Valid @RequestBody CreateEquipmentModelRequestDto dto,
@@ -55,23 +54,24 @@ public class EquipmentModelController {
     }
 
     // Endpoint para atualizar todos os campos do modelo de equipamento específico
-    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity<EquipmentModelAdminResponseDto> update(
             @PathVariable Long id,
-            @Valid @RequestBody CreateEquipmentModelRequestDto dto) {
+            @Valid @RequestBody CreateEquipmentModelRequestDto dto,
+            @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User {} is updating equipment model: {}", user.getId(), id);
 
         EquipmentModelAdminResponseDto response = equipmentModelService.update(id, dto);
-
         return ResponseEntity.ok(response);
     }
 
     // Endpoint para atualizar campos específicos do modelo de equipamento específico
-    @Transactional
     @PatchMapping("/{id}")
     public ResponseEntity<EquipmentModelAdminResponseDto> patch(
             @PathVariable Long id,
-            @Valid @RequestBody PatchEquipmentModelRequestDto dto) {
+            @Valid @RequestBody PatchEquipmentModelRequestDto dto,
+            @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User {} is patching equipment model: {}", user.getId(), id);
 
         EquipmentModelAdminResponseDto response = equipmentModelService.patch(id, dto);
 
@@ -80,9 +80,10 @@ public class EquipmentModelController {
 
     // Endpoint para deletar um modelo de equipamento do banco
     // refazer (aplicar a logica de um "soft delete")
-    @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id,
+                                       @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User {} is trying to deleting equipment model: {}", user.getId(), id);
         equipmentModelService.delete(id);
 
         return ResponseEntity.noContent().build();
@@ -91,6 +92,7 @@ public class EquipmentModelController {
     @GetMapping
     public ResponseEntity<Page<EquipmentModelView>> findAll(@PageableDefault(size = 10) Pageable pageable,
                                                                    @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User {} is fetching all equipment models", user.getId());
         Page<EquipmentModelView> response = equipmentModelService.findAll(user, pageable);
 
         return ResponseEntity.ok(response);

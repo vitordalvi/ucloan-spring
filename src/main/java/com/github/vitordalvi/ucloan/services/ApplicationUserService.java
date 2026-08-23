@@ -10,6 +10,7 @@ import com.github.vitordalvi.ucloan.exceptions.BusinessException;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,6 +39,7 @@ public class ApplicationUserService {
         return applicationUserMapper.toDto(entity);
     }
 
+    @Transactional
     public UserResponseDto updateUser(Long id, UserPatchRequestDto dto) {
         ApplicationUser entity = applicationUserRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id!"));
@@ -49,6 +51,7 @@ public class ApplicationUserService {
         return applicationUserMapper.toDto(entity);
     }
 
+    @Transactional
     public void changePassword(Long id, UserChangePasswordDtoRequest dto) {
         var user = applicationUserRepository.findByIdAndEnabledTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id!"));
@@ -73,6 +76,7 @@ public class ApplicationUserService {
         return applicationUserMapper.toAdminDto(entity);
     }
 
+    @Transactional
     public UserAdminResponseDto updateUserAsAdmin(Long id, UserAdminPatchRequestDto dto) {
         ApplicationUser entity = applicationUserRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id!"));

@@ -62,7 +62,6 @@ public class LoanController {
     }
 
     @PostMapping
-    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LoanResponseDto> createLoan(@Valid @RequestBody CreateLoanRequestDto dto,
                                                       UriComponentsBuilder uriBuilder) {

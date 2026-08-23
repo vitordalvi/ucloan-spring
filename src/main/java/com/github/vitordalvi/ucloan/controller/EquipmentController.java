@@ -54,7 +54,6 @@ public class EquipmentController {
     }
 
     // Endpoint para criação de um equipamento
-    @Transactional
     @PostMapping
     public ResponseEntity<EquipmentResponseDto> create(
             @Valid @RequestBody CreateEquipmentRequestDto dto,
@@ -73,7 +72,6 @@ public class EquipmentController {
     }
 
     // Endpoint para atualizar todos os campos do equipamento específico
-    @Transactional
     @PutMapping("/{id}")
     public ResponseEntity<EquipmentResponseDto> update(
             @PathVariable Long id,
@@ -86,7 +84,6 @@ public class EquipmentController {
     }
 
     // Endpoint para atualizar campos específicos do equipamento específico
-    @Transactional
     @PatchMapping("/{id}")
     public ResponseEntity<EquipmentView> patch(
             @PathVariable Long id,
@@ -100,7 +97,6 @@ public class EquipmentController {
 
     // Endpoint para deletar um equipamento do banco
     // refazer (aplicar a logica de um "soft delete")
-    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id,
                                       @AuthenticationPrincipal ApplicationUser user) {

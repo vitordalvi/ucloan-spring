@@ -23,7 +23,6 @@ public class AuthController {
     }
 
     // Endpoint de registro para usuários
-    @Transactional
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponseDto> register(
             @Valid @RequestBody UserRegisterRequestDto dto) {
@@ -32,7 +31,6 @@ public class AuthController {
     }
 
     // Endpoint de autenticação de usuário já criado
-    @Transactional
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponseDto> authenticate(
             @Valid @RequestBody UserAuthenticationRequestDto dto) {
@@ -45,7 +43,6 @@ public class AuthController {
     */
 
     // Endpoint para dar refresh no token do usuário
-    @Transactional
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponseDto> refresh(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader

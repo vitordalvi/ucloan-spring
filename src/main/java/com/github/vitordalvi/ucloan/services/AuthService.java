@@ -50,6 +50,7 @@ public class AuthService {
     }
 
     // Função de registro de um usuário
+    @Transactional
     public AuthenticationResponseDto register(UserRegisterRequestDto request) {
         log.info("Trying to register user with email: {}", request.email());
 
@@ -100,6 +101,7 @@ public class AuthService {
     }
 
     // Salva o token e associa ao usuário
+    @Transactional
     private void saveUserToken(ApplicationUser user, String jwtToken, TokenType tokenType) {
         var token = tokenMapper.toEntity(user, jwtToken, tokenType); // Transforma o token em entidade, associa o usuário ao token
 
@@ -107,6 +109,7 @@ public class AuthService {
     }
 
     // Revoga todos os tokens do usuário
+    @Transactional
     private void revokeAllUserTokens(ApplicationUser user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId()); // Armazena todos os tokens do usuário
 
