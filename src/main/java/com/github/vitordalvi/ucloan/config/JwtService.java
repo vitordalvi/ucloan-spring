@@ -92,7 +92,7 @@ public class JwtService {
     }
 
     private boolean isTokenRevoked(String token) {
-        return tokenRepository.findTokenByToken(token)
+        return tokenRepository.findByToken(token)
                 .map(Token::isRevoked)
                 .orElse(true);
     }
