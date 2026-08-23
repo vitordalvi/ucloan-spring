@@ -25,6 +25,7 @@ public interface LoanMapper {
     @Mapping(target = "createdBy", source = "createdBy.id")
     LoanAdminResponseDto toAdminDto(Loan loan);
 
+    @Mapping(target = "loanId", source = "loan.id")
     @Mapping(target = "borrowerId", source = "borrower.id")
     @Mapping(target = "equipmentId", source = "equipment.id")
     LoanResponseDto toDto(Loan loan);
