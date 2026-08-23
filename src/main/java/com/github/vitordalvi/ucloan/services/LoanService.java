@@ -74,6 +74,13 @@ public class LoanService {
     }
 
     public Page<LoanView> findLoanHistoryById(Long id, ApplicationUser requester, Pageable pageable) {
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Loan not found!"));
+
+        if (requester.getRole() != Role.ADMIN && !loan.getBorrower().getId().equals(requester.getId())) {
+            throw new AccessDeniedException("You don't have permission to see this loan history.");
+        }
+
         Page<LoanHistory> loanHistory = loanHistoryRepository.findAllByLoanId(id, pageable);
 
         return loanHistory.map(loanHistoryMapper::toDto);
