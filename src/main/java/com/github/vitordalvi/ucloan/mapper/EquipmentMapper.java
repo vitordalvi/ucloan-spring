@@ -15,6 +15,7 @@ public interface EquipmentMapper {
     @Mapping(target = "equipmentModel", ignore = true)
     Equipment toEntity(CreateEquipmentRequestDto dto);
 
+    @Mapping(target = "equipmentId", source = "equipment.id")
     @Mapping(target = "equipmentModelId", source = "equipmentModel.id")
     EquipmentAdminResponseDto toDtoAdmin(Equipment equipment);
     EquipmentResponseDto toDto(Equipment equipment);

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record LoanAdminResponseDto(
+        Long loanId,
         Long borrowerId,
         LoanStatus loanStatus,
         Long equipmentId,

@@ -16,6 +16,7 @@ public interface LoanMapper {
     @Mapping(target = "startDate", ignore = true)
     Loan toEntity(CreateLoanRequestDto dto);
 
+    @Mapping(target = "loanId", source = "loan.id")
     @Mapping(target = "borrowerId", source = "borrower.id")
     @Mapping(target = "equipmentId", source = "equipment.id")
     @Mapping(target = "createdAt", source = "createdAt")
