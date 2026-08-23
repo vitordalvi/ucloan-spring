@@ -21,7 +21,7 @@ import java.net.URI;
 
 @Slf4j
 @RestController
-@RequestMapping("api/v1/equipment-models")
+@RequestMapping("/api/v1/equipment-models")
 public class EquipmentModelController {
 
     private final EquipmentModelService equipmentModelService;
