@@ -6,10 +6,12 @@ import com.github.vitordalvi.ucloan.dto.response.AuthenticationResponseDto;
 import com.github.vitordalvi.ucloan.services.AuthService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -25,7 +27,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponseDto> register(
             @Valid @RequestBody UserRegisterRequestDto dto) {
-
+        log.info("Trying to register user with email: {}", dto.email());
         return ResponseEntity.ok(authService.register(dto));
     }
 
@@ -34,6 +36,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponseDto> authenticate(
             @Valid @RequestBody UserAuthenticationRequestDto dto) {
+        log.info("Trying to authenticate user with email: {}", dto.email());
         return ResponseEntity.ok(authService.authenticate(dto));
     }
 

@@ -14,11 +14,13 @@ import com.github.vitordalvi.ucloan.mapper.TokenMapper;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
 import com.github.vitordalvi.ucloan.repository.TokenRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -49,8 +51,10 @@ public class AuthService {
 
     // Função de registro de um usuário
     public AuthenticationResponseDto register(UserRegisterRequestDto request) {
+        log.info("Trying to register user with email: {}", request.email());
 
         if (applicationUserRepository.existsByEmailAndEnabledTrue(request.email())) {
+            log.error("This e-mail is currently in use: {}", request.email());
             throw new BusinessException("This e-mail is currently in use!");
         }
 
@@ -66,12 +70,14 @@ public class AuthService {
         saveUserToken(savedUser, jwtToken, TokenType.BEARER); // Salva o token e associa ao usuário
         saveUserToken(savedUser, refreshToken, TokenType.REFRESH); // Salva o refresh token e associa ao usuário
 
+        log.info("User with e-mail: {} was registered", request.email());
         return new AuthenticationResponseDto(jwtToken, refreshToken);
     }
 
     // Função de login do usuário
     @Transactional
     public AuthenticationResponseDto authenticate(UserAuthenticationRequestDto dto) {
+        log.info("User is trying to authenticate with e-mail: {}", dto.email());
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         dto.email(),
@@ -89,6 +95,7 @@ public class AuthService {
         saveUserToken(user, jwtToken, TokenType.BEARER); // Salva o novo token ao usuario
         saveUserToken(user, refreshToken, TokenType.REFRESH); // Salva o refresh token no banco
 
+        log.info("User authenticated with e-mail: {}", user.getEmail());
         return new AuthenticationResponseDto(jwtToken, refreshToken);
     }
 
@@ -143,6 +150,7 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid refresh token!");
         }
 
+        log.info("User with e-mail: {} is refreshing their token", user.getEmail());
         var storedToken = tokenRepository.findByToken(refreshToken)
                 .filter(t -> t.getTokenType() == TokenType.REFRESH && !t.isExpired() && !t.isRevoked())
                 .orElseThrow(() -> new IllegalArgumentException("Refresh token is revoked or doesn't exists!"));
