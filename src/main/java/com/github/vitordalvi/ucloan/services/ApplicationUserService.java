@@ -10,10 +10,12 @@ import com.github.vitordalvi.ucloan.exceptions.BusinessException;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class ApplicationUserService {
 
@@ -32,6 +34,7 @@ public class ApplicationUserService {
         ApplicationUser entity = applicationUserRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id"));
 
+        log.info("Fetched user information for user with ID: {}", id);
         return applicationUserMapper.toDto(entity);
     }
 
@@ -39,6 +42,7 @@ public class ApplicationUserService {
         ApplicationUser entity = applicationUserRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id!"));
 
+        log.info("Updating user information for user with ID: {}", id);
         applicationUserMapper.patchEntityFromDto(dto, entity);
         applicationUserRepository.save(entity);
 
@@ -48,6 +52,8 @@ public class ApplicationUserService {
     public void changePassword(Long id, UserChangePasswordDtoRequest dto) {
         var user = applicationUserRepository.findByIdAndEnabledTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id!"));
+
+        log.info("User with ID: {} is changing their password", id);
 
         if (!dto.newPassword().equals(dto.confirmPassword()))
             throw new BusinessException("Mismatched passwords!");
@@ -63,6 +69,7 @@ public class ApplicationUserService {
         ApplicationUser entity = applicationUserRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id!"));
 
+        log.info("Fetching user information for user with ID: {}", id);
         return applicationUserMapper.toAdminDto(entity);
     }
 
@@ -70,6 +77,7 @@ public class ApplicationUserService {
         ApplicationUser entity = applicationUserRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id!"));
 
+        log.info("Updating user information for user with ID: {}", id);
         applicationUserMapper.patchEntityFromAdminDto(dto, entity);
         applicationUserRepository.save(entity);
 

@@ -10,11 +10,13 @@ import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
 import com.github.vitordalvi.ucloan.services.ApplicationUserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("api/v1/users")
 public class ApplicationUserController {
@@ -28,6 +30,7 @@ public class ApplicationUserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getMe(@AuthenticationPrincipal ApplicationUser user) {
+        log.info("Fetching user information for user with ID: {}", user.getId());
         return ResponseEntity.ok(applicationUserService.getUser(user.getId()));
     }
 
@@ -36,6 +39,7 @@ public class ApplicationUserController {
     public ResponseEntity<UserResponseDto> updateMe(@AuthenticationPrincipal ApplicationUser user,
                                                     @Valid @RequestBody UserPatchRequestDto dto) {
 
+        log.info("Updating user information for user with ID: {}", user.getId());
         return ResponseEntity.ok(applicationUserService.updateUser(user.getId(), dto));
     }
 
@@ -43,20 +47,25 @@ public class ApplicationUserController {
     @PatchMapping("/me/password")
     public ResponseEntity<Void> changePassword(@AuthenticationPrincipal ApplicationUser user,
                                                @Valid @RequestBody UserChangePasswordDtoRequest dto) {
+        log.info("User with ID: {} is changing their password", user.getId());
         applicationUserService.changePassword(user.getId(), dto);
 
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/admin/{id}")
-    public ResponseEntity<UserAdminResponseDto> getUserAsAdmin(@PathVariable Long id) {
+    public ResponseEntity<UserAdminResponseDto> getUserAsAdmin(@PathVariable Long id,
+                                                               @AuthenticationPrincipal ApplicationUser user) {
+        log.info("Admin with ID: {} is fetching user information for user with ID: {}", user.getId(), id);
         return ResponseEntity.ok(applicationUserService.getUserAsAdmin(id));
     }
 
     @Transactional
     @PatchMapping("/admin/{id}")
     public ResponseEntity<UserAdminResponseDto> updateUserAsAdmin(@PathVariable Long id,
-                                                                  @Valid @RequestBody UserAdminPatchRequestDto dto) {
+                                                                  @Valid @RequestBody UserAdminPatchRequestDto dto,
+                                                                  @AuthenticationPrincipal ApplicationUser user) {
+        log.info("Admin with ID: {} is updating user information for user with ID: {}", user.getId(), id);
         return ResponseEntity.ok(applicationUserService.updateUserAsAdmin(id, dto));
     }
 }
