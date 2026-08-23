@@ -10,18 +10,21 @@ import com.github.vitordalvi.ucloan.services.EquipmentHistoryService;
 import com.github.vitordalvi.ucloan.services.EquipmentService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/equipments")
 public class EquipmentController {
@@ -36,20 +39,17 @@ public class EquipmentController {
 
     @GetMapping
     public ResponseEntity<Page<EquipmentView>> getAllEquipments(@PageableDefault(size = 10) Pageable pageable,
-                                                                Authentication authentication) {
-        var user = (ApplicationUser) authentication.getPrincipal();
-
+                                                                @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User with ID: {} is fetching all equipments available by his profile.", user.getId());
         Page<EquipmentView> response = equipmentService.findAll(user, pageable);
-
         return ResponseEntity.ok(response);
     }
 
     // Endpoint para retornar informações do equipmento pelo Id
     @GetMapping("/{id}")
     public ResponseEntity<EquipmentView> getEquipmentById(@PathVariable Long id,
-                                                                 Authentication authentication) {
-        var user = (ApplicationUser) authentication.getPrincipal();
-
+                                                                 @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User with ID: {} is fetching equipment with ID: {}.", user.getId(), id);
         return ResponseEntity.ok(equipmentService.findById(id, user));
     }
 
@@ -58,9 +58,11 @@ public class EquipmentController {
     @PostMapping
     public ResponseEntity<EquipmentResponseDto> create(
             @Valid @RequestBody CreateEquipmentRequestDto dto,
-            UriComponentsBuilder uriBuilder) {
+            UriComponentsBuilder uriBuilder,
+            @AuthenticationPrincipal ApplicationUser user) {
 
-        EquipmentResponseDto response = equipmentService.create(dto);
+        log.info("User with ID: {} is creating a new equipment.", user.getId());
+        EquipmentResponseDto response = equipmentService.create(dto, user);
 
         // Retornar a url do equipamento criado no body da resposta
         URI location = uriBuilder.path("/api/v1/equipments/{id}")
@@ -75,9 +77,10 @@ public class EquipmentController {
     @PutMapping("/{id}")
     public ResponseEntity<EquipmentResponseDto> update(
             @PathVariable Long id,
-            @Valid @RequestBody CreateEquipmentRequestDto dto) {
-
-        EquipmentResponseDto response = equipmentService.update(id, dto);
+            @Valid @RequestBody CreateEquipmentRequestDto dto,
+            @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User with ID: {} is updating equipment with ID: {}.", user.getId(), id);
+        EquipmentResponseDto response = equipmentService.update(id, dto, user);
 
         return ResponseEntity.ok(response);
     }
@@ -87,9 +90,10 @@ public class EquipmentController {
     @PatchMapping("/{id}")
     public ResponseEntity<EquipmentView> patch(
             @PathVariable Long id,
-            @Valid @RequestBody PatchEquipmentRequestDto dto) {
-
-        EquipmentView response = equipmentService.patch(id, dto);
+            @Valid @RequestBody PatchEquipmentRequestDto dto,
+            @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User with ID: {} is patching equipment with ID: {}.", user.getId(), id);
+        EquipmentView response = equipmentService.patch(id, dto, user);
 
         return ResponseEntity.ok(response);
     }
@@ -98,17 +102,20 @@ public class EquipmentController {
     // refazer (aplicar a logica de um "soft delete")
     @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-
-        equipmentService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id,
+                                      @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User with ID: {} is deleting equipment with ID: {}.", user.getId(), id);
+        equipmentService.delete(id, user);
         return ResponseEntity.noContent().build();
     }
 
     // Endpoint para retornar o histórico de um equipamento específico
     // transformar isso em Page (list) não vai ser tão performático caso tenham muitos históricos
     @GetMapping("/{id}/history")
-    public ResponseEntity<List<EquipmentHistoryResponseDto>> getHistory(@PathVariable Long id) {
-        List<EquipmentHistoryResponseDto> history = equipmentHistoryService.findAllByEquipmentId(id);
+    public ResponseEntity<Page<EquipmentHistoryResponseDto>> getHistory(@PathVariable Long id,
+                                                                        @PageableDefault() Pageable pageable) {
+        log.info("User is fetching equipment {} history", id);
+        Page<EquipmentHistoryResponseDto> history = equipmentHistoryService.findAllByEquipmentId(id, pageable);
         return ResponseEntity.ok(history);
     }
 
