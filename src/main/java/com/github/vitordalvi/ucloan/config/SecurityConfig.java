@@ -67,6 +67,8 @@ public class SecurityConfig {
                                 "/api/v1/equipment-models/**",
                                 "/api/v1/users/**",
                                 "/api/v1/loans/**")
+                        //.hasAnyRole("USER", "ADMIN") Quando for testar a segurança / autenticação no perfil de dev/test
+                        //.anyRequest() // Tirar os comentários
                         .permitAll()
                 )
                 .sessionManagement(session ->
@@ -86,9 +88,13 @@ public class SecurityConfig {
     @Bean
     @Profile("prod")
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        List<String> publicUrls = new ArrayList<>(List.of(PUBLIC_URLS));
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
+                        .requestMatchers(publicUrls.toArray(new String[0]))
+                        .permitAll()
                         .requestMatchers(
                                 "/api/v1/equipments/**",
                                 "/api/v1/equipment-models/**",
