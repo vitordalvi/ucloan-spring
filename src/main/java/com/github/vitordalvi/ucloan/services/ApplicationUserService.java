@@ -1,7 +1,7 @@
 package com.github.vitordalvi.ucloan.services;
 
 import com.github.vitordalvi.ucloan.dto.request.UserAdminPatchRequestDto;
-import com.github.vitordalvi.ucloan.dto.request.UserChangePasswordDtoRequest;
+import com.github.vitordalvi.ucloan.dto.request.UserChangePasswordRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.UserPatchRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.UserAdminResponseDto;
 import com.github.vitordalvi.ucloan.dto.response.UserResponseDto;
@@ -12,7 +12,6 @@ import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +51,7 @@ public class ApplicationUserService {
     }
 
     @Transactional
-    public void changePassword(Long id, UserChangePasswordDtoRequest dto) {
+    public void changePassword(Long id, UserChangePasswordRequestDto dto) {
         var user = applicationUserRepository.findByIdAndEnabledTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No user found for this Id!"));
 

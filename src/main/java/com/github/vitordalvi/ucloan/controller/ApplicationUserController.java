@@ -1,18 +1,16 @@
 package com.github.vitordalvi.ucloan.controller;
 
 import com.github.vitordalvi.ucloan.dto.request.UserAdminPatchRequestDto;
-import com.github.vitordalvi.ucloan.dto.request.UserChangePasswordDtoRequest;
+import com.github.vitordalvi.ucloan.dto.request.UserChangePasswordRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.UserPatchRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.UserAdminResponseDto;
 import com.github.vitordalvi.ucloan.dto.response.UserResponseDto;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
 import com.github.vitordalvi.ucloan.services.ApplicationUserService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +42,7 @@ public class ApplicationUserController {
 
     @PatchMapping("/me/password")
     public ResponseEntity<Void> changePassword(@AuthenticationPrincipal ApplicationUser user,
-                                               @Valid @RequestBody UserChangePasswordDtoRequest dto) {
+                                               @Valid @RequestBody UserChangePasswordRequestDto dto) {
         log.info("User with ID: {} is changing their password", user.getId());
         applicationUserService.changePassword(user.getId(), dto);
 
