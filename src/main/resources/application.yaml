@@ -28,9 +28,9 @@ application:
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
-      expiration: 1800
+      expiration: 86400000
       refresh-token:
-        expiration: 258000
+        expiration: 604800000
 
 logging:
   level:
