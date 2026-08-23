@@ -6,6 +6,7 @@ import com.github.vitordalvi.ucloan.dto.request.UserRegisterRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.AuthenticationResponseDto;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.entities.enums.Role;
+import com.github.vitordalvi.ucloan.entities.enums.TokenType;
 import com.github.vitordalvi.ucloan.exceptions.BusinessException;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
@@ -62,7 +63,8 @@ public class AuthService {
         var jwtToken = jwtService.generateToken(savedUser); // Gera o token JWT do usuário
         var refreshToken = jwtService.generateRefreshToken(savedUser); // Gera o refresh token do usuário
 
-        saveUserToken(savedUser, jwtToken); // Salva o token e associa ao usuário
+        saveUserToken(savedUser, jwtToken, TokenType.BEARER); // Salva o token e associa ao usuário
+        saveUserToken(savedUser, refreshToken, TokenType.REFRESH); // Salva o refresh token e associa ao usuário
 
         return new AuthenticationResponseDto(jwtToken, refreshToken);
     }
@@ -84,14 +86,15 @@ public class AuthService {
         var jwtToken = jwtService.generateToken(user); // Gera o token para o usuário
         var refreshToken = jwtService.generateRefreshToken(user); // Gera o refresh token
         revokeAllUserTokens(user); // Revoga todos os tokens atuais do usuário
-        saveUserToken(user, jwtToken); // Salva o novo token ao usuario
+        saveUserToken(user, jwtToken, TokenType.BEARER); // Salva o novo token ao usuario
+        saveUserToken(user, refreshToken, TokenType.REFRESH); // Salva o refresh token no banco
 
         return new AuthenticationResponseDto(jwtToken, refreshToken);
     }
 
     // Salva o token e associa ao usuário
-    private void saveUserToken(ApplicationUser user, String jwtToken) {
-        var token = tokenMapper.toEntity(user, jwtToken); // Transforma o token em entidade, associa o usuário ao token
+    private void saveUserToken(ApplicationUser user, String jwtToken, TokenType tokenType) {
+        var token = tokenMapper.toEntity(user, jwtToken, tokenType); // Transforma o token em entidade, associa o usuário ao token
 
         tokenRepository.save(token); // Salva o token no banco
     }
@@ -140,14 +143,23 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid refresh token!");
         }
 
+        var storedToken = tokenRepository.findByToken(refreshToken)
+                .filter(t -> t.getTokenType() == TokenType.REFRESH && !t.isExpired() && !t.isRevoked())
+                .orElseThrow(() -> new IllegalArgumentException("Refresh token is revoked or doesn't exists!"));
+
         // Gera o novo token de acesso do usuário
-        var accessToken = jwtService.generateToken(user);
+        var newAccessToken = jwtService.generateToken(user);
+
+        // Gera o novo refresh token
+        var newRefreshToken = jwtService.generateRefreshToken(user);
 
         // Revoga todos os tokens antigos
         revokeAllUserTokens(user);
-        // Salva novos tokens
-        saveUserToken(user, accessToken);
 
-        return new AuthenticationResponseDto(accessToken, refreshToken);
+        // Salva novos tokens
+        saveUserToken(user, newAccessToken, TokenType.BEARER);
+        saveUserToken(user, newRefreshToken, TokenType.REFRESH);
+
+        return new AuthenticationResponseDto(newAccessToken, newRefreshToken);
     }
 }
