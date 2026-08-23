@@ -44,15 +44,19 @@ public class LogoutService implements LogoutHandler {
         // Corta a string até o 7o digito (onde começa o token)
         jwt = authHeader.substring(7);
 
-        // Procura o token no banco, se achar, armazena o token na variável
+        // Procura os tokens de todos os tipos no banco, se achar salva na variável
         var storedToken = tokenRepository.findByToken(jwt)
                 .orElse(null); // Se não achar, retorna como nulo
 
-        // Se achou o token
+        // Se tem tokens salvos ->
         if (storedToken != null) {
-            storedToken.setExpired(true); // Seta o token como expirado
-            storedToken.setRevoked(true); // Seta o token como revogado
-            tokenRepository.save(storedToken); // Salva o token
+            var userTokens = tokenRepository.findAllValidTokenByUser(storedToken.getUser().getId()); // Armazena os tokens do usuário
+            userTokens.forEach(t -> { // Para cada token encontrado (independente do tipo ->
+                t.setExpired(true); // Seta como expirado
+                t.setRevoked(true); // Seta como revogado
+            });
+
+            tokenRepository.saveAll(userTokens); // Atualiza o estado dos tokens do usuário
             SecurityContextHolder.clearContext(); // Limpa a autenticação do usuário
         }
     }
