@@ -155,6 +155,7 @@ public class EquipmentService {
         equipmentMapper.patchEntityFromDto(dto, equipment); // Atualiza os campos do equipamento pelo dto
         equipmentRepository.save(equipment); // Salva alterações no banco
 
+        history.setEquipment(equipment); // Salva o equipamento
         history.setNotes("Equipment updated!"); // Adicionada a nota do update feito
         equipmentHistoryRepository.save(history); // Salva o histórico criado
 
