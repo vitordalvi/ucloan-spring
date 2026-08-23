@@ -1,5 +1,6 @@
 package com.github.vitordalvi.ucloan.config;
 
+import com.github.vitordalvi.ucloan.entities.Token;
 import com.github.vitordalvi.ucloan.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -91,7 +92,9 @@ public class JwtService {
     }
 
     private boolean isTokenRevoked(String token) {
-        return tokenRepository.findTokenByToken(token).isPresent();
+        return tokenRepository.findTokenByToken(token)
+                .map(Token::isRevoked)
+                .orElse(true);
     }
 
     // Retorna a Expiration do Token pela claim
