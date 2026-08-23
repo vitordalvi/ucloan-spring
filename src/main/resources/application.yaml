@@ -28,11 +28,10 @@ application:
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
-      expiration: 86400000
+      expiration: 1800
       refresh-token:
-        expiration: 604800000
+        expiration: 258000
 
 logging:
   level:
     org.springframework.security: WARN
-    
