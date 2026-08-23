@@ -1,5 +1,6 @@
 package com.github.vitordalvi.ucloan.config;
 
+import com.github.vitordalvi.ucloan.entities.enums.TokenType;
 import com.github.vitordalvi.ucloan.repository.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -83,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Valida o token, buscando o token no banco
             var isTokenValid = tokenRepository.findByToken(jwt)
                     // VALIDAÇÃO DOS ATRIBUTOS DO TOKEN, SE ESTÁ REVOGADO OU EXPIRADO
-                    .map(t -> !t.isExpired() && !t.isRevoked())
+                    .map(t -> t.getTokenType() == TokenType.BEARER && !t.isExpired() && !t.isRevoked())
                     // SE PASSAR PELAS REGRAS DE EXPIRADO E REVOGADO (PELO O QUE ESTÁ NO BANCO)
                     // isTokenValid == true, SE NÃO, isTokanValid == false
                     .orElse(false);
