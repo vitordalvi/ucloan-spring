@@ -3,6 +3,7 @@ package com.github.vitordalvi.ucloan.dto.response;
 import com.github.vitordalvi.ucloan.entities.enums.Role;
 
 public record UserResponseDto(
+        Long id,
         String firstName,
         String lastName,
         String email,
