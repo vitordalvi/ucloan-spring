@@ -1,12 +1,14 @@
 package com.github.vitordalvi.ucloan.controller;
 
 import com.github.vitordalvi.ucloan.dto.request.CreateLoanRequestDto;
+import com.github.vitordalvi.ucloan.dto.request.ExtendLoanDurationRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.LoanResponseDto;
 import com.github.vitordalvi.ucloan.dto.view.LoanView;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.services.LoanService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -19,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/loans")
 public class LoanController {
@@ -73,5 +76,14 @@ public class LoanController {
                 .toUri();
 
         return ResponseEntity.created(location).body(response);
+    }
+
+    @PatchMapping("/{id}/extend-loan")
+    public ResponseEntity<LoanResponseDto> extendLoanDuration(@Valid @RequestBody ExtendLoanDurationRequestDto dto,
+                                                              @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User: {} is trying to extend loan {} duration.", user.getId(), dto.loanId());
+        LoanResponseDto response = loanService.extendLoanDuration(dto, user);
+
+        return ResponseEntity.ok(response);
     }
 }
