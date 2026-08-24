@@ -123,10 +123,11 @@ public class LoanService {
     }
 
     @Transactional
-    public LoanResponseDto extendLoanDuration(ExtendLoanDurationRequestDto dto,
+    public LoanResponseDto extendLoanDuration(Long id,
+                                              ExtendLoanDurationRequestDto dto,
                                               ApplicationUser user) {
-        log.info("User {} is trying to extend loan {} duration.", user.getId(), dto.loanId());
-        Loan loan = loanRepository.findById(dto.loanId())
+        log.info("User {} is trying to extend loan {} duration.", user.getId(), id);
+        Loan loan = loanRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
 
         if (!isEquipmentLoaned(loan.getEquipment().getId())) {
@@ -134,14 +135,14 @@ public class LoanService {
         }
 
         if (!loan.getBorrower().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
-            log.info("User {} doesn't have permission to extend loan {} duration", user.getId(), dto.loanId());
+            log.info("User {} doesn't have permission to extend loan {} duration", user.getId(), id);
             throw new AccessDeniedException("You don't have permission to extend this loan.");
         }
 
         loan.setEndDate(loan.getEndDate().plusDays(dto.extendDuration().toEpochDay() - loan.getEndDate().toEpochDay()));
         var updatedLoan = loanRepository.save(loan);
 
-        log.info("Loan {} got extended duration to {}", dto.loanId(), dto.extendDuration());
+        log.info("Loan {} got extended duration to {}", id, dto.extendDuration());
         LoanHistory history = new LoanHistory(loan, user, "Extended loan duration to " + dto.extendDuration());
         loanHistoryRepository.save(history);
 

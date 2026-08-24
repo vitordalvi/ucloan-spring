@@ -79,11 +79,13 @@ public class LoanController {
     }
 
     @PatchMapping("/{id}/extend-loan")
-    public ResponseEntity<LoanResponseDto> extendLoanDuration(@Valid @RequestBody ExtendLoanDurationRequestDto dto,
+    public ResponseEntity<LoanResponseDto> extendLoanDuration(@PathVariable Long id,
+                                                              @Valid @RequestBody ExtendLoanDurationRequestDto dto,
                                                               @AuthenticationPrincipal ApplicationUser user) {
-        log.info("User: {} is trying to extend loan {} duration.", user.getId(), dto.loanId());
-        LoanResponseDto response = loanService.extendLoanDuration(dto, user);
+        log.info("User: {} is trying to extend loan {} duration.", user.getId(), id);
+        LoanResponseDto response = loanService.extendLoanDuration(id, dto, user);
 
         return ResponseEntity.ok(response);
     }
+
 }
