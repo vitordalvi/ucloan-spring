@@ -149,6 +149,23 @@ public class LoanService {
         return loanMapper.toDto(updatedLoan);
     }
 
+    @Transactional
+    public LoanResponseDto returnLoan(Long id, ApplicationUser user) {
+        log.info("User {} is returning equipment of the loan {}", user.getId(), id);
+
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Loan not found!"));
+
+        if (!loan.getBorrower().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("You don't have permission to perform this action!");
+        }
+
+        loan.setLoanStatus(LoanStatus.RETURNED);
+        var savedLoan = loanRepository.save(loan);
+
+        return loanMapper.toDto(savedLoan);
+    }
+
     public boolean isEquipmentLoaned(Long equipmentId) {
         return loanRepository.existsByEquipmentIdAndLoanStatus(equipmentId, LoanStatus.BORROWED);
     }

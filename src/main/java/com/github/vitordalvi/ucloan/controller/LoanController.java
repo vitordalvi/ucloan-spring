@@ -88,4 +88,13 @@ public class LoanController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/{id}/return")
+    public ResponseEntity<LoanResponseDto> returnLoan(@PathVariable Long id,
+                                           @AuthenticationPrincipal ApplicationUser user) {
+        log.info("User {} is trying to return equipment from loan {}", user.getId(), id);
+        LoanResponseDto response = loanService.returnLoan(id, user);
+
+        return ResponseEntity.ok(response);
+    }
+
 }
