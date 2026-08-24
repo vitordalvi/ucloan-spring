@@ -1,6 +1,7 @@
 package com.github.vitordalvi.ucloan.services;
 
 import com.github.vitordalvi.ucloan.dto.request.CreateLoanRequestDto;
+import com.github.vitordalvi.ucloan.dto.request.ExtendLoanDurationRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.LoanResponseDto;
 import com.github.vitordalvi.ucloan.dto.view.LoanView;
 import com.github.vitordalvi.ucloan.entities.ApplicationUser;
@@ -17,14 +18,17 @@ import com.github.vitordalvi.ucloan.repository.EquipmentRepository;
 import com.github.vitordalvi.ucloan.repository.LoanHistoryRepository;
 import com.github.vitordalvi.ucloan.repository.LoanRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class LoanService {
 
@@ -93,6 +97,10 @@ public class LoanService {
 
     @Transactional
     public LoanResponseDto createLoan(CreateLoanRequestDto dto) {
+        if (dto.endDate() != null && dto.endDate().isBefore(LocalDate.now())) {
+            throw new BusinessException("Loan end date cannot be on the pass!");
+        }
+
         var borrower = applicationUserRepository.findByIdAndEnabledTrue(dto.borrowerId())
                 .orElseThrow(() -> new BusinessException("User is disabled or doesn't exists!"));
 
@@ -108,9 +116,36 @@ public class LoanService {
         loan.setBorrower(borrower);
         loan.setEquipment(equipment);
         loan.setLoanStatus(LoanStatus.BORROWED);
+        loan.setEndDate(dto.endDate());
         var savedLoan = loanRepository.save(loan);
 
         return loanMapper.toDto(savedLoan);
+    }
+
+    @Transactional
+    public LoanResponseDto extendLoanDuration(ExtendLoanDurationRequestDto dto,
+                                              ApplicationUser user) {
+        log.info("User {} is trying to extend loan {} duration.", user.getId(), dto.loanId());
+        Loan loan = loanRepository.findById(dto.loanId())
+                .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
+
+        if (!isEquipmentLoaned(loan.getEquipment().getId())) {
+            throw new BusinessException("Cannot extend loan duration. Equipment is not currently loaned.");
+        }
+
+        if (!loan.getBorrower().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            log.info("User {} doesn't have permission to extend loan {} duration", user.getId(), dto.loanId());
+            throw new AccessDeniedException("You don't have permission to extend this loan.");
+        }
+
+        loan.setEndDate(loan.getEndDate().plusDays(dto.extendDuration().toEpochDay() - loan.getEndDate().toEpochDay()));
+        var updatedLoan = loanRepository.save(loan);
+
+        log.info("Loan {} got extended duration to {}", dto.loanId(), dto.extendDuration());
+        LoanHistory history = new LoanHistory(loan, user, "Extended loan duration to " + dto.extendDuration());
+        loanHistoryRepository.save(history);
+
+        return loanMapper.toDto(updatedLoan);
     }
 
     public boolean isEquipmentLoaned(Long equipmentId) {
