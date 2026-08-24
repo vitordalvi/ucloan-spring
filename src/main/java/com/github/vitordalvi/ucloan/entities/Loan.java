@@ -64,6 +64,9 @@ public class Loan extends AuditableBaseEntity {
     public LocalDate getEndDate() {
         return endDate;
     }
+    public void setEndDate(LocalDate date) {
+        this.endDate = date;
+    }
 
     public String getDescription() {
         return description;
