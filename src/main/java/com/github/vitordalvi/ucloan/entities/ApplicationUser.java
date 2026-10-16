@@ -7,7 +7,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 @Entity
 @Table(name = "tb_user")
@@ -20,9 +19,6 @@ public class ApplicationUser extends AuditableBaseEntity implements UserDetails 
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @OneToMany(mappedBy = "applicationUser")
-    private List<Token> tokens;
 
     private boolean enabled = true;
     private boolean accountNonExpired = true;
@@ -63,15 +59,6 @@ public class ApplicationUser extends AuditableBaseEntity implements UserDetails 
 
     public void setRole(Role role) {
         this.role = role;
-    }
-
-    public List<Token> getTokens() {
-        return tokens;
-    }
-
-    public void addToken(Token token) {
-        tokens.add(token);
-        token.setUser(this);
     }
 
     // auth / security

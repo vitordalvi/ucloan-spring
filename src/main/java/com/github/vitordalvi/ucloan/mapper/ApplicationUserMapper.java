@@ -14,7 +14,6 @@ import java.util.List;
 public interface ApplicationUserMapper {
 
     @Mapping(target = "password", ignore = true)
-    @Mapping(target = "tokens", ignore = true)
     @Mapping(target = "accountNonExpired", ignore = true)
     @Mapping(target = "accountNonLocked", ignore = true)
     @Mapping(target = "credentialsNonExpired", ignore = true)

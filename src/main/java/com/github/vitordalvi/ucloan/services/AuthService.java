@@ -4,15 +4,12 @@ import com.github.vitordalvi.ucloan.config.JwtService;
 import com.github.vitordalvi.ucloan.dto.request.UserAuthenticationRequestDto;
 import com.github.vitordalvi.ucloan.dto.request.UserRegisterRequestDto;
 import com.github.vitordalvi.ucloan.dto.response.AuthenticationResponseDto;
-import com.github.vitordalvi.ucloan.entities.ApplicationUser;
 import com.github.vitordalvi.ucloan.entities.enums.Role;
-import com.github.vitordalvi.ucloan.entities.enums.TokenType;
 import com.github.vitordalvi.ucloan.exceptions.BusinessException;
 import com.github.vitordalvi.ucloan.exceptions.ResourceNotFoundException;
 import com.github.vitordalvi.ucloan.mapper.ApplicationUserMapper;
-import com.github.vitordalvi.ucloan.mapper.TokenMapper;
 import com.github.vitordalvi.ucloan.repository.ApplicationUserRepository;
-import com.github.vitordalvi.ucloan.repository.TokenRepository;
+import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,31 +22,25 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final ApplicationUserRepository applicationUserRepository;
-    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final ApplicationUserMapper userMapper;
-    private final TokenMapper tokenMapper;
 
     public AuthService(ApplicationUserRepository applicationUserRepository,
-                       TokenRepository tokenRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
                        AuthenticationManager authenticationManager,
-                       ApplicationUserMapper userMapper,
-                       TokenMapper tokenMapper) {
+                       ApplicationUserMapper userMapper) {
 
         this.applicationUserRepository = applicationUserRepository;
-        this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.userMapper = userMapper;
-        this.tokenMapper = tokenMapper;
     }
 
-    // Função de registro de um usuário
+    // Função de registro de um novo usuário com emissão de tokens stateless
     @Transactional
     public AuthenticationResponseDto register(UserRegisterRequestDto request) {
         log.info("Trying to register user with email: {}", request.email());
@@ -59,24 +50,19 @@ public class AuthService {
             throw new BusinessException("This e-mail is currently in use!");
         }
 
-        var user = userMapper.toEntity(request); // Cria a entidade do usuário com os dados do dto
+        var user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(Role.USER);
 
-        user.setPassword(passwordEncoder.encode(request.password())); // Seta a senha do usuário já criptografando
-        user.setRole(Role.USER); // Seta o cargo padrão do usuário
-
-        var savedUser = applicationUserRepository.save(user); // Salva o usuário
-        var jwtToken = jwtService.generateToken(savedUser); // Gera o token JWT do usuário
-        var refreshToken = jwtService.generateRefreshToken(savedUser); // Gera o refresh token do usuário
-
-        saveUserToken(savedUser, jwtToken, TokenType.BEARER); // Salva o token e associa ao usuário
-        saveUserToken(savedUser, refreshToken, TokenType.REFRESH); // Salva o refresh token e associa ao usuário
+        var savedUser = applicationUserRepository.save(user);
+        var jwtToken = jwtService.generateToken(savedUser);
+        var refreshToken = jwtService.generateRefreshToken(savedUser);
 
         log.info("User with e-mail: {} was registered", request.email());
         return new AuthenticationResponseDto(jwtToken, refreshToken);
     }
 
-    // Função de login do usuário
-    @Transactional
+    // Função de login com emissão de tokens stateless (sem persistência em banco)
     public AuthenticationResponseDto authenticate(UserAuthenticationRequestDto dto) {
         log.info("User is trying to authenticate with e-mail: {}", dto.email());
         authenticationManager.authenticate(
@@ -86,90 +72,45 @@ public class AuthService {
                 )
         );
 
-        // Procura o usuário no banco, pelo email
         var user = applicationUserRepository.findByEmail(dto.email())
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this email!"));
 
-        var jwtToken = jwtService.generateToken(user); // Gera o token para o usuário
-        var refreshToken = jwtService.generateRefreshToken(user); // Gera o refresh token
-        revokeAllUserTokens(user); // Revoga todos os tokens atuais do usuário
-        saveUserToken(user, jwtToken, TokenType.BEARER); // Salva o novo token ao usuario
-        saveUserToken(user, refreshToken, TokenType.REFRESH); // Salva o refresh token no banco
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
         log.info("User authenticated with e-mail: {}", user.getEmail());
         return new AuthenticationResponseDto(jwtToken, refreshToken);
     }
 
-    // Salva o token e associa ao usuário
-    @Transactional
-    private void saveUserToken(ApplicationUser user, String jwtToken, TokenType tokenType) {
-        var token = tokenMapper.toEntity(user, jwtToken, tokenType); // Transforma o token em entidade, associa o usuário ao token
-
-        tokenRepository.save(token); // Salva o token no banco
-    }
-
-    // Revoga todos os tokens do usuário
-    @Transactional
-    private void revokeAllUserTokens(ApplicationUser user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId()); // Armazena todos os tokens do usuário
-
-        // Se for nulo, termina a função aqui
-        if (validUserTokens.isEmpty()) {
-            return;
-        }
-
-        // Percorre a lista de tokens do usuário e revoga todos eles
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-
-        // Salva a lista de tokens no banco
-        tokenRepository.saveAll(validUserTokens);
-    }
-
-    // Retorna os tokens atualizados do usuário
-    @Transactional
+    // Renova o par de tokens (Access Token e Refresh Token com rotation) de forma stateless
     public AuthenticationResponseDto refreshToken(String authHeader) {
-        // Se o header for nulo ou não começar com o padrão do Authorization, retorna exception
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new IllegalArgumentException("Invalid headers");
         }
 
-        String refreshToken = authHeader.substring(7); // Armazena o token
-        String userEmail = jwtService.extractUsername(refreshToken); // Armazena o username (email) do usuário pelas claims
+        String refreshToken = authHeader.substring(7);
+        String userEmail;
 
-        // Se o email for nulo, retorna exception
+        try {
+            userEmail = jwtService.extractUsername(refreshToken);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid refresh token!", e);
+        }
+
         if (userEmail == null) {
             throw new ResourceNotFoundException("No records found for this email!");
         }
 
-        // Armazena o usuário, pegando pelo username do header
         var user = applicationUserRepository.findByEmailAndEnabledTrue(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("No users found for this username"));
 
-        // Se o token não for válido, retorna exception
-        if (!jwtService.isTokenValid(refreshToken, user)) {
+        if (!jwtService.isRefreshTokenValid(refreshToken, user)) {
             throw new IllegalArgumentException("Invalid refresh token!");
         }
 
         log.info("User with e-mail: {} is refreshing their token", user.getEmail());
-        var storedToken = tokenRepository.findByToken(refreshToken)
-                .filter(t -> t.getTokenType() == TokenType.REFRESH && !t.isExpired() && !t.isRevoked())
-                .orElseThrow(() -> new IllegalArgumentException("Refresh token is revoked or doesn't exists!"));
-
-        // Gera o novo token de acesso do usuário
         var newAccessToken = jwtService.generateToken(user);
-
-        // Gera o novo refresh token
         var newRefreshToken = jwtService.generateRefreshToken(user);
-
-        // Revoga todos os tokens antigos
-        revokeAllUserTokens(user);
-
-        // Salva novos tokens
-        saveUserToken(user, newAccessToken, TokenType.BEARER);
-        saveUserToken(user, newRefreshToken, TokenType.REFRESH);
 
         return new AuthenticationResponseDto(newAccessToken, newRefreshToken);
     }
