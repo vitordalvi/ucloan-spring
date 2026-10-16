@@ -1,8 +1,9 @@
 package com.github.vitordalvi.ucloan.config;
 
-import com.github.vitordalvi.ucloan.entities.Token;
-import com.github.vitordalvi.ucloan.repository.TokenRepository;
+import com.github.vitordalvi.ucloan.entities.enums.TokenType;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -19,6 +20,8 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    public static final String CLAIM_TOKEN_TYPE = "token_type";
+
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
@@ -28,15 +31,17 @@ public class JwtService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
-    private final TokenRepository tokenRepository;
+    public JwtService() {}
 
-    public JwtService(TokenRepository tokenRepository) {
-        this.tokenRepository = tokenRepository;
+    public JwtService(String secretKey, long jwtExpiration, long refreshExpiration) {
+        this.secretKey = secretKey;
+        this.jwtExpiration = jwtExpiration;
+        this.refreshExpiration = refreshExpiration;
     }
 
-    // Função para extrair o username do usuário pelo token
+    // Função para extrair o username (e-mail) do usuário pelo token
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject); // Acessa as claims do usuário
+        return extractClaim(token, Claims::getSubject);
     }
 
     // Extrai uma claim específica
@@ -45,74 +50,113 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    // Função para retornar o token já criado
+    // Extrai o tipo de token (ACCESS ou REFRESH)
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get(CLAIM_TOKEN_TYPE, String.class));
+    }
+
+    // Verifica se o token informado é um access token
+    public boolean isAccessToken(String token) {
+        String type = extractTokenType(token);
+        return TokenType.ACCESS.name().equals(type) || TokenType.BEARER.name().equals(type);
+    }
+
+    // Verifica se o token informado é um refresh token
+    public boolean isRefreshToken(String token) {
+        return TokenType.REFRESH.name().equals(extractTokenType(token));
+    }
+
+    // Gera o Access Token stateless padrão do usuário
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    // Função para criar o token
+    // Gera o Access Token stateless com claims extras
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
-        return buildToken(extraClaims, userDetails, jwtExpiration);
+        Map<String, Object> claims = new HashMap<>(extraClaims);
+        claims.put(CLAIM_TOKEN_TYPE, TokenType.ACCESS.name());
+        return buildToken(claims, userDetails, jwtExpiration);
     }
 
+    // Gera o Refresh Token stateless do usuário
     public String generateRefreshToken(
             UserDetails userDetails
     ) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_TOKEN_TYPE, TokenType.REFRESH.name());
+        return buildToken(claims, userDetails, refreshExpiration);
     }
 
-    // Construção do token
+    // Construção do token JWT assinado
     private String buildToken(
-            Map<String, Object> extraClaims, // Claims extras do token
-            UserDetails userDetails, // userDetails para conseguirmos adicionar o username (email) do usuário no token
-            long expiration // Tempo de expiração do token
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,
+            long expiration
     ) {
         return Jwts
-                .builder() // Inicia a configuração do token
-                .claims(extraClaims) // Adiciona as claims no token
-                .subject(userDetails.getUsername()) // Adiciona o username do usuário (que tamo usando o email)
-                .issuedAt(new Date(System.currentTimeMillis())) // Adiciona o momento em que o token foi emitido
-                .expiration(new Date(System.currentTimeMillis() + expiration)) // Adiciona o tempo de expiração
-                .signWith(getSignInKey()) // Assina o token com a key criptografada (para verificar se o token é valido depois)
-                .compact(); // Serializa o token em string
+                .builder()
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey())
+                .compact();
     }
 
-    // Retorna se o token é valido, pelo nome do usuário e regra de expiração
+    // Validação stateless do Access Token: valida assinatura, expiração, username e tipo
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token) && !isTokenRevoked(token);
+        try {
+            final String username = extractUsername(token);
+            return username.equals(userDetails.getUsername())
+                    && !isTokenExpired(token)
+                    && isAccessToken(token);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
-    // Retorna se o token está ou não expirado, vendo se a expiração já passou
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    // Validação stateless do Refresh Token: valida assinatura, expiração, username e tipo
+    public boolean isRefreshTokenValid(String token, UserDetails userDetails) {
+        try {
+            final String username = extractUsername(token);
+            return username.equals(userDetails.getUsername())
+                    && !isTokenExpired(token)
+                    && isRefreshToken(token);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
-    private boolean isTokenRevoked(String token) {
-        return tokenRepository.findByToken(token)
-                .map(Token::isRevoked)
-                .orElse(true);
+    // Retorna se o token está ou não expirado
+    public boolean isTokenExpired(String token) {
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (Exception e) {
+            return true;
+        }
     }
 
-    // Retorna a Expiration do Token pela claim
-    private Date extractExpiration(String token) {
+    // Retorna a expiration do token pela claim exp
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // Extrai todos os dados enviados no token
+    // Extrai e valida a assinatura de todas as claims enviadas no token
     private Claims extractAllClaims(String token) {
         return Jwts
-                .parser() // Inicia a configuração do parser de tokens
-                .verifyWith(getSignInKey()) // Valida o token com a key criptografada do sistema
-                .build() // Finaliza a configuração e monta o parser
-                .parseSignedClaims(token) // Parsing e verifica a assinatura, retornando as claims
-                .getPayload(); // Retorna a payload do token
+                .parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    // Decodifica a key do sistema para validações
+    // Decodifica a secret key do sistema para geração e validação de assinaturas
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);

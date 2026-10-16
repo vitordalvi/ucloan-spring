@@ -26,7 +26,7 @@ public class ApplicationConfig {
 
     private final ApplicationUserRepository applicationUserRepository;
 
-    @Value("${ADMIN_DEFAULT_PASSWORD}")
+    @Value("${ADMIN_DEFAULT_PASSWORD:admin}")
     private String ADMIN_DEFAULT_PASSWORD;
 
     public ApplicationConfig(ApplicationUserRepository applicationUserRepository) {
