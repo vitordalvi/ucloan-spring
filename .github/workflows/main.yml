@@ -1,49 +1,44 @@
-name: Java CI with Maven
 
-    on:
-      push:
-        branches:
-          - master
-          - 'feature/**'
-          - 'fix/**'
-      pull_request:
-        branches:
-          - master
+  name: Java CI with Maven
 
-    jobs:
-      test:
-        name: Run Unit and Integration Tests
-        runs-on: ubuntu-latest
+  on:
+    push:
+      branches:
+        - master
+        - 'feature/**'
+        - 'fix/**'
+    pull_request:
+      branches:
+        - master
 
-        steps:
-          # 1. Clona o código do repositório
-          - name: Checkout repository
-            uses: actions/checkout@v4
+  jobs:
+    test:
+      name: Run Unit and Integration Tests
+      runs-on: ubuntu-latest
 
-          # 2. Configura o Java 21 com cache automático do Maven
-          - name: Set up JDK 21
-            uses: actions/setup-java@v4
-            with:
-              java-version: '21'
-              distribution: 'temurin'
-              cache: 'maven'
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-          # 3. Garante permissão de execução no wrapper do Maven
-          - name: Make mvnw executable
-            run: chmod +x ./mvnw
+        - name: Set up JDK 21
+          uses: actions/setup-java@v4
+          with:
+            java-version: '21'
+            distribution: 'temurin'
+            cache: 'maven'
 
-          # 4. Executa a suíte de testes
-          - name: Run tests with Maven
-            env:
-              # Variáveis para garantir que o contexto suba sem depender de valores externos
-              JWT_SECRET_KEY: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
-              ADMIN_DEFAULT_PASSWORD: "admin"
-            run: ./mvnw clean test
+        - name: Make mvnw executable
+          run: chmod +x ./mvnw
 
-          # 5. (Opcional) Salva o relatório de testes caso algum quebre
-          - name: Publish Test Report
-            if: failure()
-            uses: actions/upload-artifact@v4
-            with:
-              name: surefire-reports
-              path: target/surefire-reports/
+        - name: Run tests with Maven
+          env:
+            JWT_SECRET_KEY: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+            ADMIN_DEFAULT_PASSWORD: "admin"
+          run: ./mvnw clean test
+
+        - name: Publish Test Report
+          if: failure()
+          uses: actions/upload-artifact@v4
+          with:
+            name: surefire-reports
+            path: target/surefire-reports/
